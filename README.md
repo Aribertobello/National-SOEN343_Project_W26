@@ -62,4 +62,5 @@ Role:  <br><br>
   - As a student access to a personal calendar for events, personal wallet for tickets, a personal feed and a search engine
   - As an organizer you will have access to event creation/management, ticket verification tools, attendance tracking, and a dashboard for event analytics
   - As an administrator you will have manage accounts, assign roles, moderate events for compliance and have access to global event stats
-  
+
+  https://drive.google.com/file/d/1aTpt1PR0V50_D-f3lbIg4z4Vza4AOS_l/view?usp=sharing 
