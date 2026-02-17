@@ -1,0 +1,71 @@
+name: Django CI Tests
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: summs_user
+          POSTGRES_PASSWORD: summs_password
+          POSTGRES_DB: summs_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+        cache-dependency-path: backend/requirements.txt
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run migrations
+      working-directory: ./backend
+      env:
+        SECRET_KEY: 'test-secret-key-for-ci-only'
+        DEBUG: 'True'
+        DB_NAME: 'summs_db'
+        DB_USER: 'summs_user'
+        DB_PASSWORD: 'summs_password'
+        DB_HOST: 'localhost'
+        DB_PORT: '5432'
+      run: |
+        python manage.py migrate
+
+    - name: Run Django tests
+      working-directory: ./backend
+      env:
+        SECRET_KEY: 'test-secret-key-for-ci-only'
+        DEBUG: 'True'
+        DB_NAME: 'summs_db'
+        DB_USER: 'summs_user'
+        DB_PASSWORD: 'summs_password'
+        DB_HOST: 'localhost'
+        DB_PORT: '5432'
+        DJANGO_TEST_MODE: '1'
+      run: |
+        python manage.py test
