@@ -1,6 +1,7 @@
 // utils/factories/BikeFactory.ts
 
-import { VehicleFactory, VehicleConfig } from "./VehicleFactory";
+import type { VehicleConfig } from "./VehicleFactory";
+import { VehicleFactory } from "./VehicleFactory";
 import bikeIcon from "../../assets/bicycle.svg";
 
 export class BikeFactory extends VehicleFactory {

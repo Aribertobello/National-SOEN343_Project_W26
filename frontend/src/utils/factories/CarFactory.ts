@@ -1,5 +1,6 @@
 
-import { VehicleFactory, VehicleConfig } from "./VehicleFactory";
+import type { VehicleConfig } from "./VehicleFactory";
+import { VehicleFactory } from "./VehicleFactory";
 import carIcon from "../../assets/carshare.svg";
 
 export class CarFactory extends VehicleFactory {

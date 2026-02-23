@@ -1,4 +1,5 @@
-import { VehicleFactory, VehicleConfig } from "./VehicleFactory";
+import type { VehicleConfig } from "./VehicleFactory";
+import { VehicleFactory } from "./VehicleFactory";
 import { CarFactory }      from "./CarFactory";
 import { BikeFactory }     from "./BikeFactory";
 import { EScooterFactory } from "./EScooterFactory.ts";
@@ -23,7 +24,8 @@ export function getAllVehicleConfigs(): VehicleConfig[] {
   return Object.values(factoryRegistry).map((f) => f.createConfig());
 }
 
-export { VehicleFactory, VehicleConfig } from "./VehicleFactory";
+export { VehicleFactory } from "./VehicleFactory";
+export type { VehicleConfig } from "./VehicleFactory";
 export { CarFactory }      from "./CarFactory";
 export { BikeFactory }     from "./BikeFactory";
 export { EScooterFactory } from "./EScooterFactory.ts";
