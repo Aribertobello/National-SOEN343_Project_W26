@@ -8,6 +8,7 @@ export interface Vehicle {
   latitude: number;
   longitude: number;
   price_per_unit: number;
+  hourly_rate : number;
 
   // Car
   seats?: number;

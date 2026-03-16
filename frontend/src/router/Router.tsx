@@ -7,7 +7,14 @@ import RentPage from "@/pages/RentPage";
 import RentBikePage from "@/pages/RentBikePage";
 import RentEScooterPage from "@/pages/RentEScooterPage";
 import RentCarPage from "@/pages/RentCarPage";
+import BookingPage    from "@/pages/BookingPage";
+import MyRentalsPage  from "@/pages/MyRentalsPage";
 
+import { BikeFactory, CarFactory, EScooterFactory } from "@/utils/factories";
+
+const bikeConfig     = new BikeFactory().createConfig();
+const carConfig      = new CarFactory().createConfig();
+const escooterConfig = new EScooterFactory().createConfig();
 
 const router = createBrowserRouter([
     {
@@ -38,6 +45,21 @@ const router = createBrowserRouter([
             {
                 path: "rent-car",
                 element: <RentCarPage />
+            },
+            {   path: "rent-bike/:id",
+                element: <BookingPage config={bikeConfig} />
+            },
+            {   path: "rent-escooter/:id",
+                element: <BookingPage config={escooterConfig} />
+            },
+            {   path: "rent-car/:id",
+                element: <BookingPage config={carConfig} />
+            },
+            {   path: "my-rentals",
+                element: <MyRentalsPage />
+            },
+            {   path: "*",
+                element: <NotFound />
             },
         ]
     },
