@@ -1,12 +1,13 @@
 import App from "@/App";
 import NotFound from "./NotFound";
-import {createBrowserRouter} from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import RouteError from "./RouteError";
 import Home from "@/components/Home";
 import RentPage from "@/pages/RentPage";
 import RentBikePage from "@/pages/RentBikePage";
 import RentEScooterPage from "@/pages/RentEScooterPage";
 import RentCarPage from "@/pages/RentCarPage";
+import authRouter from "./AuthRouter";
 import BookingPage    from "@/pages/BookingPage";
 import MyRentalsPage  from "@/pages/MyRentalsPage";
 
@@ -16,19 +17,20 @@ const bikeConfig     = new BikeFactory().createConfig();
 const carConfig      = new CarFactory().createConfig();
 const escooterConfig = new EScooterFactory().createConfig();
 
+
 const router = createBrowserRouter([
     {
-        path:"/",
-        element:<App/>,
-        errorElement:<RouteError/>,
-        children:[
+        path: "/",
+        element: <App />,
+        errorElement: <RouteError />,
+        children: [
             {
-                index:true,
-                element:<Home/>
+                index: true,
+                element: <Home />
             },
             {
-                path:"/404",
-                element:<NotFound/>
+                path: "/404",
+                element: <NotFound />
             },
             {
                 path: "rent",
@@ -63,5 +65,6 @@ const router = createBrowserRouter([
             },
         ]
     },
+    authRouter
 ]);
 export default router;
