@@ -1,53 +1,41 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
 
-export interface User {
-  id: number;
-}
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { type User, parseUser } from "@/models/user";
+import { authState } from "./authState";
+import { initAuth } from "@/services/authService";
 
 interface AuthContextType {
   user: User | null;
-  login: (userData: User) => void;
-  logout: () => void;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem("user");
-    if (!saved) return null;
-    try {
-      const parsed = JSON.parse(saved);
 
-      if (typeof parsed === "object" && parsed !== null && "id" in parsed) {
-        return parsed as User;
-      }
 
-      localStorage.removeItem("user");
-      return null;
-    } catch {
-      // If corrupted data → wipe and return null
-      localStorage.removeItem("user");
-      return null;
-    }
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setIsLoading] = useState<boolean>(true);
 
-  const login = (userData: User) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-  };
+  useEffect(() => {
+    const observer = {
+      update() {
+        setUser(authState.getUser());
+        setIsLoading(authState.isLoading());
+      },
+    };
+    authState.addObserver(observer);
+    initAuth();
+    return () => authState.removeObserver(observer);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
+
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
