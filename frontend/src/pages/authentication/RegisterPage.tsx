@@ -13,27 +13,64 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { signup, login } from "@/services/authService";
+import { Role } from "@/models/user";
+
+function isValidEmail(email: string): boolean {
+  const trimmed = email.trim();
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+}
 
 const RegisterPage = () => {
     const [isLoading, setIsLoading] = useState(false);
+    const [hint, setHint] = useState<string>("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
+    const [opName,setOpName] = useState<string>("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [role, setRole] = useState<Role>(Role.CUSTOMER);
     const navigate = useNavigate();
 
-    const handleSignUp = () => {
-        if (!firstName || !lastName || !email || !password) {
-            // In a real app, you'd want to show an error message.
+    const handleSignUp = async () => {
+
+        setHint("");
+
+        //TODO validate email syntax ,min lengh for passwords  
+        
+        const name = (role === Role.CUSTOMER)
+        ? `${firstName.trim()} ${lastName.trim()}`.trim()
+        : opName.trim();
+        
+        if (!name || !email || !password) {
+            setHint("Please fill in the fields before submitting");
             return;
         }
 
-        setIsLoading(true);
+        if (!isValidEmail(email)) {
+            setHint("Please enter a valid email");
+            return;
+        }
 
-        setTimeout(() => {
+
+        setIsLoading(true);
+        try{
+            await signup(name, email, password, role);
+        } catch(err: any){
+            setHint(err?.message ?? "signup failed for unknown reason, try again later");
             setIsLoading(false);
-            navigate("/login");
-        }, 3000);
+            return;
+        }
+        try{
+            await login(email, password);
+        } catch {
+            setHint("account created successfully but failed to log you in, try again later");
+            setIsLoading(false);
+            return;
+        }
+        setIsLoading(false);
+        navigate("/"); 
     };
 
     return (
@@ -45,6 +82,23 @@ const RegisterPage = () => {
                 </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">
+                <div className="grid grid-cols-2 gap-2">
+                    <Button
+                    type="button"
+                    variant={role === Role.CUSTOMER ? "default" : "outline"}
+                    onClick={() => setRole(Role.CUSTOMER)}
+                    >
+                        Client Signup
+                    </Button>
+                    <Button
+                    type="button"
+                    variant={role === Role.OPERATOR ? "default" : "outline"}
+                    onClick={() => setRole(Role.OPERATOR)}
+                    >
+                        Operator Register
+                    </Button>
+                </div>
+                {role == Role.CUSTOMER ?
                 <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
                         <Label htmlFor="first-name">First name</Label>
@@ -67,6 +121,19 @@ const RegisterPage = () => {
                             onChange={(e) => setLastName(e.target.value)} />
                     </div>
                 </div>
+                : 
+                    <div className="grid gap-2">
+                    <Label htmlFor="operator-name">Business / operator name</Label>
+                    <Input
+                    id="operator-name"
+                    placeholder="Societe de Transport de Montreal"
+                    autoComplete="organization"
+                    value={opName}
+                    onChange={(e) => setOpName(e.target.value)}
+                    />
+                </div>
+                }
+                
                 <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -74,7 +141,7 @@ const RegisterPage = () => {
                         type="email"
                         placeholder="m@example.com"
                         required
-                        autoComplete="off"
+                        autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)} />
                 </div>
@@ -88,6 +155,11 @@ const RegisterPage = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)} />
                 </div>
+                {hint && (
+                <div className="flex items-center justify-between text-red-400">
+                    {hint}
+                </div>
+                )}
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
                 <Button className="w-full" onClick={handleSignUp} disabled={isLoading}>

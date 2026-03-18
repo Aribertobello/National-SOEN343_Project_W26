@@ -158,7 +158,8 @@ REST_FRAMEWORK = {
 REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'summs_cookie',
-    'JWT_AUTH_REFRESH_COOKIE': 'summs_refresh_cookie'
+    'JWT_AUTH_REFRESH_COOKIE': 'summs_refresh_cookie',
+    'USER_DETAILS_SERIALIZER': 'users.serializers.UserSerializer',
 }
 
 AUTH_USER_MODEL = 'users.User'

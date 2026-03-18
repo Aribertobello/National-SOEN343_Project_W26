@@ -13,25 +13,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { login } from "@/services/authService";
 
 const LoginPage = () => {
+    const [hint, setHint] = useState<string>("");
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
-    const handleSignIn = () => {
+    const handleSignIn = async () => {
+        setHint("");
+        //TODO validate email syntax ,min lenght for passwords        
         if (!email || !password) {
-            // In a real app, you'd want to show an error message.
+            setHint("Please fill in the fields before submitting");
             return;
         }
-
         setIsLoading(true);
-
-        setTimeout(() => {
+        try{
+            await login(email, password);
+        } catch(err: any){
+            setHint(err?.message ?? "Login failed for unknown reason, try again later");
             setIsLoading(false);
-            navigate("/");
-        }, 3000);
+            return;
+        }
+        setIsLoading(false);
+        navigate("/");
     };
 
     return (
@@ -69,6 +76,12 @@ const LoginPage = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)} />
                 </div>
+                {hint && (
+                <div className="flex items-center justify-between text-red-400">
+                    {hint}
+                </div>
+                )}
+                
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
                 <Button className="w-full" onClick={handleSignIn} disabled={isLoading}>

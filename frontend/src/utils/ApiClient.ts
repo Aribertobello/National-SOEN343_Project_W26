@@ -15,7 +15,7 @@ export class ApiClient {
 
   static getInstance(): ApiClient {
     if (!ApiClient.instance) {
-      ApiClient.instance = new ApiClient('/api');
+      ApiClient.instance = new ApiClient('http://localhost:8000');
     }
     return ApiClient.instance;
   } 
@@ -32,7 +32,10 @@ export class ApiClient {
       headers: this.buildHeaders(),
       credentials: 'include',
     });
-    if (!res.ok) throw new Error(`GET ${path} failed with status ${res.status}`);
+    if (!res.ok){
+      console.log(res.status)
+      throw new Error(`GET ${path} failed with status ${res.status}`);
+    } 
     return res.json() as Promise<T>;
   }
 

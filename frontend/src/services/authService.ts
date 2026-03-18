@@ -10,6 +10,7 @@ async function login(email: string, password: string){
 
     const userData = await ApiClient.getInstance().get(`/api/auth/user`);
     try{
+        console.log(userData)
         const user = parseUser(userData);
         authState.setUser(user);
     } catch (err: any){
@@ -24,10 +25,11 @@ async function logout(){
     authState.removeUser();
 }
 
-async function signup(firstName:string, lastName: string, email:string,  password: string, role: Role){
+async function signup(name: string, email:string,  password: string, role: Role){
     await ApiClient.getInstance().post(
         `/api/auth/signup`, 
-        {firstname: firstName, lastName:lastName, email:email, password:password, role:role});
+        {name:name, email:email, password:password, role:role});
+    await login(email, password);
 }
 
 async function initAuth() {

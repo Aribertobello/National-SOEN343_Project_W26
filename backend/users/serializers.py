@@ -9,15 +9,14 @@ class SignupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'password', 'role']
+        fields = ['id', 'email', 'name', 'password', 'role']
 
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['email'],
             email=validated_data['email'],
             password=validated_data['password'],
-            first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', ''),
+            name=validated_data.get('name', ''),
             role=validated_data['role']
         )
         return user
@@ -26,4 +25,4 @@ class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'role', 'date_joined', 'last_updated']
+        fields = ['id', 'email', 'name', 'role', 'date_joined', 'last_updated']

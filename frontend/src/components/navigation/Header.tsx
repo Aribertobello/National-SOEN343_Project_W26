@@ -7,15 +7,23 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/auth/AuthContext";
 
 import favicon from "/appicon.svg"
 import { Button } from "../ui/button"
+import { logout } from "@/services/authService";
 
 export default function Header() {
     const navigate = useNavigate();
+    const {user} = useAuth();
+
 
     const handleLogin = () => {
         navigate("/login")
+    }
+
+    const handleLogout = () => {
+        logout();
     }
 
     return (
@@ -76,9 +84,15 @@ export default function Header() {
                     <NavigationMenuItem>
                         <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
                     </NavigationMenuItem>
+                    {user ? 
+                    <Button className="bg-background text-foreground rounded-lg" onClick={handleLogout}>
+                        Logout
+                    </Button>
+                    :
                     <Button className="bg-background text-foreground rounded-lg" onClick={handleLogin}>
                         Login
                     </Button>
+                    }  
                 </NavigationMenuList>
             </NavigationMenu>
         </div>

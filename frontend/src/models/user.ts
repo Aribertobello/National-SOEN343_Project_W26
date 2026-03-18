@@ -1,6 +1,6 @@
 
 export const Role =  {
-    OPERATOR: "organizer",
+    OPERATOR: "operator",
     CUSTOMER: "customer",
     ADMIN: "admin"
 } as const;
@@ -9,8 +9,7 @@ export type Role = (typeof Role)[keyof typeof Role]
 
 export interface User{
     id: number,
-    firstName: string,
-    lastName: string,
+    name: string,
     email: string,
     role: Role
 }
