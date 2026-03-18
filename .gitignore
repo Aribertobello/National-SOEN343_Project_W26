@@ -44,5 +44,8 @@ staticfiles/
 .env.local
 *.pyc
 
+#local endpoint testing
+*.http
+
 # Docker
 *.log

@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Third party apps
     'rest_framework',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
     'corsheaders',
     # SUMMS apps
     'users',
@@ -147,4 +149,17 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+    )
 }
+
+# AUTH Settings
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'summs_cookie',
+    'JWT_AUTH_REFRESH_COOKIE': 'summs_refresh_cookie',
+    'USER_DETAILS_SERIALIZER': 'users.serializers.UserSerializer',
+}
+
+AUTH_USER_MODEL = 'users.User'

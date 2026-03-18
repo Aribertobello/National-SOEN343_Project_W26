@@ -1,0 +1,13 @@
+#!/bin/bash
+
+docker compose up -d
+
+cleanup() {
+  docker compose down
+  exit
+}
+
+trap cleanup SIGINT
+
+cd frontend
+npm run dev

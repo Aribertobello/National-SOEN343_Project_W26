@@ -6,12 +6,26 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/auth/AuthContext";
 
 import favicon from "/appicon.svg"
 import { Button } from "../ui/button"
+import { logout } from "@/services/authService";
 
-export default () => {
+export default function Header() {
+    const navigate = useNavigate();
+    const {user} = useAuth();
+
+
+    const handleLogin = () => {
+        navigate("/login")
+    }
+
+    const handleLogout = () => {
+        logout();
+    }
+
     return (
         <div className="flex justify-between w-full border-2 rounded-lg sticky top-0">
             <div className="flex justify-between gap-x-5">
@@ -19,7 +33,7 @@ export default () => {
                     <Link to={"/"}>
                         <img src={favicon} alt="SUMMS Logo"/>
                     </Link>
-                    <h1 className="text-primary">SUMMS</h1> 
+                    <h1 className="text-primary">SUMMS</h1>
                 </div>
                 <NavigationMenu className="relative w-full">
                     <NavigationMenuList className="flex justify-between">
@@ -70,9 +84,15 @@ export default () => {
                     <NavigationMenuItem>
                         <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
                     </NavigationMenuItem>
-                    <Button className="bg-background text-foreground rounded-lg">
+                    {user ? 
+                    <Button className="bg-background text-foreground rounded-lg" onClick={handleLogout}>
+                        Logout
+                    </Button>
+                    :
+                    <Button className="bg-background text-foreground rounded-lg" onClick={handleLogin}>
                         Login
                     </Button>
+                    }  
                 </NavigationMenuList>
             </NavigationMenu>
         </div>
