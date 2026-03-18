@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'corsheaders',
     # SUMMS apps
+    'core',
     'users',
     'rentals',
     'parkings',

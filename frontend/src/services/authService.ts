@@ -21,13 +21,13 @@ async function login(email: string, password: string){
 async function logout(){
 
     await ApiClient.getInstance().post(
-        `/api/auth/logout`,{});
+        `/api/auth/logout/`,{});
     authState.removeUser();
 }
 
 async function signup(name: string, email:string,  password: string, role: Role){
     await ApiClient.getInstance().post(
-        `/api/auth/signup`, 
+        `/api/auth/signup/`, 
         {name:name, email:email, password:password, role:role});
     await login(email, password);
 }
