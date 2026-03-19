@@ -3,7 +3,12 @@ from django.db import models
 from django.conf import settings
 from core.models import Payment
 from core.models import Vehicle
+from core.models import Location
 
+class RentalStation(models.Model):
+    name = models.CharField(max_length=100)
+    operator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
 class RentableVehicle(Vehicle):
     class VehicleType(models.TextChoices):
@@ -15,7 +20,8 @@ class RentableVehicle(Vehicle):
     rate = models.DecimalField(max_digits=8, decimal_places=2)
     overtime_rate = models.DecimalField(max_digits=8, decimal_places=2)
     operator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
+    station = models.ForeignKey(RentalStation, on_delete=models.CASCADE, null=True, blank=True)
+    location = models.ForeignKey(Location, null=True, blank=True, on_delete=models.SET_NULL)
 
 
 
