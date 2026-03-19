@@ -16,17 +16,18 @@ class Payment(models.Model):
 
 class Location(models.Model):
 
-    x = models.IntegerField()
-    y = models.IntegerField()
+    address = models.CharField(max_length=255, default="uknown")
+    x = models.DecimalField(max_digits=8, decimal_places=6)
+    y = models.DecimalField(max_digits=8, decimal_places=6)
 
 
 class City(models.Model):
     name = models.CharField(max_length=100)
-    top_left_x = models.IntegerField()
-    top_left_y = models.IntegerField()
-    top_right_x = models.IntegerField()
-    top_right_y = models.IntegerField()
-    bottom_left_x = models.IntegerField()
-    bottom_left_y = models.IntegerField()
-    bottom_right_x = models.IntegerField()
-    bottom_right_y = models.IntegerField()
+    top_left_x = models.DecimalField(max_digits=8, decimal_places=6)
+    top_left_y = models.DecimalField(max_digits=8, decimal_places=6)
+    top_right_x = models.DecimalField(max_digits=8, decimal_places=6)
+    top_right_y = models.DecimalField(max_digits=8, decimal_places=6)
+    bottom_left_x = models.DecimalField(max_digits=8, decimal_places=6)
+    bottom_left_y = models.DecimalField(max_digits=8, decimal_places=6)
+    bottom_right_x = models.DecimalField(max_digits=8, decimal_places=6)
+    bottom_right_y = models.DecimalField(max_digits=8, decimal_places=6)
