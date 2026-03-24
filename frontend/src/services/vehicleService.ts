@@ -1,10 +1,11 @@
 // All API calls related to vehicles
 import type { Vehicle, VehicleType } from "@/models/vehicle";
+import { VehicleAdapter, type BackendVehicle } from "@/utils/adapters/VehicleAdapter";
 
 const BASE_URL = "http://localhost:8000/api";
 
 // Toggle this to false once the Django backend is running
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 export async function fetchVehiclesByType(type: VehicleType): Promise<Vehicle[]> {
   if (USE_MOCK) {
@@ -12,11 +13,10 @@ export async function fetchVehiclesByType(type: VehicleType): Promise<Vehicle[]>
     return MOCK_VEHICLES.filter(v => v.type === type);
   }
  
-  const response = await fetch(`${BASE_URL}/rentals/vehicles/?type=${type}`);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch vehicles: ${response.statusText}`);
-  }
-  return response.json();
+    const response = await fetch(`${BASE_URL}/rentals/vehicles/?type=${type}`);
+  if (!response.ok) throw new Error(`Failed to fetch vehicles: ${response.statusText}`);
+  const raw: BackendVehicle[] = await response.json();
+  return VehicleAdapter.adaptMany(raw); //ADAPTER
 }
 
 export async function fetchVehicleById(id: number): Promise<Vehicle> {
@@ -28,10 +28,9 @@ export async function fetchVehicleById(id: number): Promise<Vehicle> {
   }
  
   const response = await fetch(`${BASE_URL}/rentals/vehicles/${id}/`);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch vehicle ${id}: ${response.statusText}`);
-  }
-  return response.json();
+  if (!response.ok) throw new Error(`Failed to fetch vehicle ${id}: ${response.statusText}`);
+  const raw: BackendVehicle = await response.json();
+  return VehicleAdapter.adapt(raw);  //ADAPTER
 }
 
 // Mock data — shaped exactly like the Django API response

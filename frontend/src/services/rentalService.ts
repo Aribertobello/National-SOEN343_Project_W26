@@ -2,28 +2,24 @@ import type { Rental, CreateRentalPayload } from '@/models/rental';
 import type { Vehicle } from '@/models/vehicle';
 import { PricingContext, getPricingStrategy } from './pricing/PricingStrategy';
 import { RentalStore } from '@/stores/RentalStore';
+import { ApiClient } from '@/utils/ApiClient';
+import { RentalAdapter, type BackendRental } from '@/utils/adapters/RentalAdapter';
+
+// Flip to false once the Django backend is running
+const USE_MOCK = false;
 
 /**
- * Create a new rental (book a vehicle).
+ * createRental
  *
  * Patterns in use:
- *   ApiClient (Singleton), HTTP call with auth headers automatically attached
- *   RentalStore (Observer), addRental() notifies all subscribers immediately
- *
- * TODO: replace mock block with:
- *   const rental = await ApiClient.getInstance().post<Rental>(
- *     '/rentals/rentals/',
- *     { vehicle_id: payload.vehicle_id, payment_method: payload.payment_method }
- *   );
- *   RentalStore.getInstance().addRental(rental);
- *   return rental;
+ *   ApiClient   (Singleton)  — single shared HTTP client with auth headers
+ *   RentalStore (Observer)   — addRental() notifies all subscribers immediately
+ *   RentalAdapter (Adapter)  — transforms raw backend shape into frontend Rental
  */
 export async function createRental(
   vehicle: Vehicle,
   payload: CreateRentalPayload,
 ): Promise<Rental> {
-  await new Promise(r => setTimeout(r, 600)); // simulated network delay
-
   const store = RentalStore.getInstance();
 
   const alreadyActive = store
@@ -31,72 +27,88 @@ export async function createRental(
     .find(r => r.vehicle.id === vehicle.id && r.status === 'active');
   if (alreadyActive) throw new Error('This vehicle is already rented.');
 
-  // Mock: log what would be sent to the API(For error of payload)
-  console.debug('[rentalService] createRental payload:', payload);
+  if (USE_MOCK) {
+    await new Promise(r => setTimeout(r, 600));
+    console.debug('[rentalService] createRental payload:', payload);
 
-  const rental: Rental = {
-    id: store.allocateId(),
-    vehicle,
-    user_id: 1, // TODO: replace with value from auth context
-    status: 'active',
-    start_time: new Date().toISOString(),
-    payment_status: 'paid',
-  };
+    const rental: Rental = {
+      id:             store.allocateId(),
+      vehicle,
+      user_id:        1,
+      status:         'active',
+      start_time:     new Date().toISOString(),
+      payment_status: 'paid',
+    };
+    store.addRental(rental);
+    return rental;
+  }
 
-  store.addRental(rental); // Observer: notifies MyRentalsPage automatically
+  const raw = await ApiClient.getInstance().post<BackendRental>(
+    '/api/rentals/rentals/',
+    { vehicle_id: payload.vehicle_id },
+  );
+  const rental = RentalAdapter.adapt(raw);
+  store.addRental(rental);
   return rental;
 }
 
 /**
- * Return a vehicle — delegates cost calculation to the appropriate
- * PricingStrategy, then updates the store.
+ * returnVehicle
  *
  * Patterns in use:
- *   PricingContext (Strategy) — correct pricing rules per vehicle type
- *   RentalStore (Observer)    — returnRental() notifies all subscribers
- *
- * TODO: replace mock block with:
- *   const returned = await ApiClient.getInstance().patch<Rental>(
- *     `/rentals/rentals/${rentalId}/return/`
- *   );
- *   RentalStore.getInstance().returnRental(
- *     returned.id, returned.end_time!, returned.total_cost!
- *   );
- *   return returned;
+ *   PricingContext (Strategy) — correct billing rules per vehicle type
+ *   RentalStore   (Observer)  — returnRental() notifies all subscribers
+ *   RentalAdapter (Adapter)   — transforms raw backend shape into frontend Rental
  */
 export async function returnVehicle(rentalId: number): Promise<Rental> {
-  await new Promise(r => setTimeout(r, 500));
+  const store = RentalStore.getInstance();
 
-  const store  = RentalStore.getInstance();
-  const rental = store.getRentals().find(r => r.id === rentalId);
-  if (!rental) throw new Error('Rental not found.');
+  if (USE_MOCK) {
+    await new Promise(r => setTimeout(r, 500));
 
-  const endTime       = new Date().toISOString();
-  const durationHours =
-    (new Date(endTime).getTime() - new Date(rental.start_time).getTime()) /
-    3_600_000;
+    const rental = store.getRentals().find(r => r.id === rentalId);
+    if (!rental) throw new Error('Rental not found.');
 
-  // Strategy: pick the pricing algorithm for this vehicle type
-  const strategy = getPricingStrategy(
-    rental.vehicle.type,
-    rental.vehicle.battery_level,
+    const endTime       = new Date().toISOString();
+    const durationHours =
+      (new Date(endTime).getTime() - new Date(rental.start_time).getTime()) /
+      3_600_000;
+    const context   = new PricingContext(
+      getPricingStrategy(rental.vehicle.type, rental.vehicle.battery_level),
+    );
+    const totalCost = context.calculateCost(durationHours, rental.vehicle.price_per_unit);
+    return store.returnRental(rentalId, endTime, totalCost);
+  }
+
+  const raw      = await ApiClient.getInstance().patch<BackendRental>(
+    `/api/rentals/rentals/${rentalId}/return/`,
   );
-  const context   = new PricingContext(strategy);
-  const totalCost = context.calculateCost(
-    durationHours,
-    rental.vehicle.price_per_unit,
-  );
-
-  return store.returnRental(rentalId, endTime, totalCost); // Observer: notifies
+  const returned = RentalAdapter.adapt(raw);
+  store.returnRental(returned.id, returned.end_time!, returned.total_cost!);
+  return returned;
 }
 
 /**
- * Read rentals directly from the store — no network call needed since the
- * store is always kept up to date by createRental / returnVehicle.
+ * loadMyRentals
  *
- * TODO: on app load, seed the store from the API:
- *   const rentals = await ApiClient.getInstance().get<Rental[]>('/rentals/rentals/');
- *   rentals.forEach(r => RentalStore.getInstance().addRental(r));
+ * Patterns in use:
+ *   ApiClient   (Singleton) — single shared HTTP client
+ *   RentalStore (Observer)  — addRental() notifies all subscribers
+ *   RentalAdapter (Adapter) — transforms raw backend rentals into frontend shape
+ */
+export async function loadMyRentals(): Promise<void> {
+  if (USE_MOCK) return; // store is populated by createRental in mock mode
+
+  const raws = await ApiClient.getInstance().get<BackendRental[]>(
+    '/api/rentals/rentals/',
+  );
+  RentalAdapter.adaptMany(raws).forEach(r =>
+    RentalStore.getInstance().addRental(r),
+  );
+}
+
+/**
+ * getMyRentals(Read current rentals from the store synchronously)
  */
 export function getMyRentals(): Rental[] {
   return RentalStore.getInstance().getRentals();

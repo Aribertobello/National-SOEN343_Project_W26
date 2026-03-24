@@ -5,7 +5,7 @@ import { parseUser, Role } from "@/models/user";
 async function login(email: string, password: string){
 
     await ApiClient.getInstance().post(
-        `/api/auth/login`, 
+        `/api/auth/login/`, 
         {username:email, password:password});
 
     const userData = await ApiClient.getInstance().get(`/api/auth/user`);
