@@ -1,20 +1,21 @@
+import type { VehicleType } from "@/models/vehicle";
+
 export interface VehicleSpec {
-    label: string;
-    key: string;
+  label: string;
+  key: string;
 }
 
 export interface VehicleConfig {
-    type: string;
-    label: string;
-    iconPath: string;
-    rateLabel: string;
-    badgeColor: string;
-    specs: VehicleSpec[];
-    bookingRoute: string;
+  type: VehicleType;
+  label: string;
+  iconPath: string;
+  rateLabel: string;
+  badgeColor: string;
+  specs: VehicleSpec[];
+  bookingRoute: string;
 }
 
 export abstract class VehicleFactory {
-
   abstract createConfig(): VehicleConfig;
   getLabel(): string {
     return this.createConfig().label;

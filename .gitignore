@@ -49,3 +49,6 @@ staticfiles/
 
 # Docker
 *.log
+
+# Project-local docs/instructions
+instructions/
