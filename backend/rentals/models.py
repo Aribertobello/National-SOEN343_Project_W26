@@ -6,7 +6,14 @@ from core.models import Vehicle
 from core.models import Location
 
 class RentalStation(models.Model):
+
+    class stationType(models.TextChoices):
+        CAR = 'car', 'Car'
+        ESCOOTER = 'escooter', 'EScooter'
+        BIKE = 'bike', 'Bike'
+
     name = models.CharField(max_length=100)
+    type = models.CharField(max_length=20, choices=stationType.choices, default=stationType.BIKE) 
     operator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
@@ -16,12 +23,18 @@ class RentableVehicle(Vehicle):
         ESCOOTER = 'escooter', 'EScooter'
         BIKE = 'bike', 'Bike'
 
+    class rentalStatus(models.TextChoices):
+        AVAILABLE = 'available', 'Available' 
+        RENTEDOUT = 'rented-out', "Rented-Out"
+        OUTOFSERVICE = 'out-of-service','Out-Of-Service'
+
     type = models.CharField(max_length=20, choices=VehicleType.choices)
     rate = models.DecimalField(max_digits=8, decimal_places=2)
     overtime_rate = models.DecimalField(max_digits=8, decimal_places=2)
     operator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     station = models.ForeignKey(RentalStation, on_delete=models.CASCADE, null=True, blank=True)
     location = models.ForeignKey(Location, null=True, blank=True, on_delete=models.SET_NULL)
+    status = models.CharField(max_length=20, choices=rentalStatus.choices, default=rentalStatus.AVAILABLE)
 
 
 

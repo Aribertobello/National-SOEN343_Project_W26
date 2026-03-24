@@ -1,3 +1,7 @@
+import {type Rental } from "./rental";
+import type { Location } from "@/models/location";
+import type { RentalStation } from "./RentalStation";
+
 export type VehicleType = "car" | "bike" | "escooter";
 export type VehicleStatus = "available" | "rented" | "maintenance";
 export interface Vehicle {
@@ -23,3 +27,38 @@ export interface Vehicle {
   battery_level?: number; //percentage
   max_speed_kmh?: number;
 }
+
+export const RentalVehicleStatus =  {
+    AVAILABLE: "available",
+    RENTEDOUT: "rented-out",
+    OUTOFSERVICE: "out-of-service"
+} as const;
+
+type RentalVehicleStatusType = typeof RentalVehicleStatus[keyof typeof RentalVehicleStatus];
+
+export interface RentalVehicle {
+  id: number;
+  type: VehicleType;
+  status: RentalVehicleStatusType
+  location: Location
+  station: RentalStation
+  rate : number;
+  overtime_rate: number;
+  operatorName: "string";
+  rental: Rental;
+  capacity: number;
+}
+
+/*function isVehicle(data: any): boolean{
+
+    if(typeof data !== "object" || data === null) 
+        return false;
+
+    return  "id" in data && "role" in data
+}
+
+export function parseVehicle(data: any): User{
+    if(!isValidUser(data))
+        throw(new Error(`data cannot be parsed to User: ${data}`))
+    return data as User;
+}*/

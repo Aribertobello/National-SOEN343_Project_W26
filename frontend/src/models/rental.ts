@@ -1,4 +1,5 @@
 import type { Vehicle } from '@/models/vehicle';
+import type { Payment } from '@/models/Payment';
 
 export type RentalStatus  = 'active' | 'completed' | 'cancelled';
 export type PaymentStatus = 'pending' | 'paid' | 'refunded';
@@ -11,7 +12,7 @@ export interface Rental {
   start_time: string;   // ISO string
   end_time?: string;    // ISO string — set on return
   total_cost?: number;  // set on return
-  payment_status: PaymentStatus;
+  payment: Payment;
 }
 
 export interface CreateRentalPayload {
