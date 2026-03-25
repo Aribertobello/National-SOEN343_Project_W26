@@ -20,9 +20,18 @@ export class ApiClient {
     return ApiClient.instance;
   } 
 
+  private getCsrfToken(): string {
+    const match = document.cookie
+      .split(';')
+      .map(c => c.trim())
+      .find(c => c.startsWith('csrftoken='));
+    return match ? match.split('=')[1] : '';
+  }
+
   private buildHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-CSRFToken': this.getCsrfToken(),
     };
     return headers;
   }

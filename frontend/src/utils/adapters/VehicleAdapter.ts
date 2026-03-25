@@ -1,0 +1,61 @@
+import type { Vehicle, VehicleType, VehicleStatus } from '@/models/vehicle';
+
+/**
+ * VehicleAdapter — Adapter Pattern
+ *
+ * Converts the raw Django API response shape into the Vehicle interface
+ * the frontend uses
+ *
+ * Backend returns: rate, nested location object, decimal strings
+ * Frontend expects: price_per_unit, location string, latitude/longitude numbers
+ */
+
+export interface BackendVehicle {
+  id: number;
+  type: string;
+  status: string;
+  rate: string;
+  capacity: number;
+  location: {
+    id: number;
+    address: string;
+    x: string;// DecimalField — longitude
+    y: string;// DecimalField — latitude
+  } | null;
+  // Optional type-specific fields
+  battery_level?: number;
+  max_speed_kmh?: number;
+  seats?: number;
+  fuel_type?: string;
+  transmission?: string;
+  range_km?: number;
+  style?: string;
+}
+
+export class VehicleAdapter {
+  static adapt(raw: BackendVehicle): Vehicle {
+    const rate = parseFloat(raw.rate);
+    return {
+      id:             raw.id,
+      type:           raw.type as VehicleType,
+      status:         raw.status as VehicleStatus,
+      price_per_unit: rate,
+      hourly_rate:    rate,
+      location:       raw.location?.address ?? 'Unknown',
+      latitude:       raw.location ? parseFloat(raw.location.y) : 0,
+      longitude:      raw.location ? parseFloat(raw.location.x) : 0,
+      // type-specific — passed through as-is
+      battery_level:  raw.battery_level,
+      max_speed_kmh:  raw.max_speed_kmh,
+      seats:          raw.seats,
+      fuel_type:      raw.fuel_type,
+      transmission:   raw.transmission,
+      range_km:       raw.range_km,
+      style:          raw.style,
+    };
+  }
+
+  static adaptMany(raws: BackendVehicle[]): Vehicle[] {
+    return raws.map(VehicleAdapter.adapt);
+  }
+}
