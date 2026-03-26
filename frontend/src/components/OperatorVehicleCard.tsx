@@ -2,7 +2,10 @@
 import { MapPin } from "lucide-react";
 import { RentalVehicleStatus, type RentalVehicle } from "@/models/vehicle";
 import { Button } from "./ui/button";
-import { useState } from "react";
+
+import bikeIcon from "@/assets/bicycle.svg";
+import carIcon from "@/assets/carshare.svg";
+import scooterIcon from "@/assets/scooter.svg";
 
 interface OperatorVehicleCardProps {
   vehicle: RentalVehicle;
@@ -11,34 +14,30 @@ interface OperatorVehicleCardProps {
 
 export default function OperatorVehicleCard({vehicle, clientName}: OperatorVehicleCardProps) {
 
-    const [iconPath,setIconPath] = useState<string>("");
-    const [statusCSS, setStatusCSS] = useState<String>("");
-
-    switch(vehicle.type){
+    const iconPath = (() => {
+      switch (vehicle.type) {
         case "bike":
-            setIconPath("@/assets/bicycle.svg");
-            break;
+          return bikeIcon;
         case "car":
-            setIconPath("@/assets/carshare.svg");
-            break;
+          return carIcon;
         default:
-            setIconPath("@/assets/scooter.svg");
-    }
+          return scooterIcon;
+      }
+    })();
 
-
-    switch(vehicle.status){
+    const statusCSS = (() => {
+      switch (vehicle.status) {
         case RentalVehicleStatus.AVAILABLE:
-            setStatusCSS("bg-green-50 text-green-700")
-            break;
+          return "bg-green-50 text-green-700";
         case RentalVehicleStatus.RENTEDOUT:
-            setStatusCSS("bg-red-50 text-red-700");
-            break;
+          return "bg-red-50 text-red-700";
         default:
-            setStatusCSS("bg-gray-700 text-gray-50");
-    }
+          return "bg-gray-700 text-gray-50";
+      }
+    })();
 
   return (
-    <div className="group relative bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col min-w-3/4">
+    <div className="group relative bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col max-w-3/4">
       <div className={`h-1 w-full bg-accent`} />
       <div className="p-5 flex flex-col gap-4 flex-1">
         <div className="flex items-start justify-between">
@@ -65,7 +64,7 @@ export default function OperatorVehicleCard({vehicle, clientName}: OperatorVehic
         </div>
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <MapPin className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">{vehicle.location.adress}</span>
+          <span className="truncate">{vehicle.location.address}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-2">          

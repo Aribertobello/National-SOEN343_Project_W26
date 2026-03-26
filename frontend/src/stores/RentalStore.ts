@@ -61,7 +61,7 @@ export class RentalStore {
     const updated: Rental = {
       ...this.rentals[index],
       status: 'completed',
-      end_time: endTime,
+      end_date_time: endTime,
       total_cost: totalCost,
     };
 

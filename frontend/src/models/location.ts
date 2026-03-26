@@ -1,6 +1,6 @@
 export interface Location{
     id: number,
-    adress: string,
+    address: string,
     logitude: number,
     lattitude: number
 }

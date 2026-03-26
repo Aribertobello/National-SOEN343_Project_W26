@@ -10,14 +10,14 @@ export default function NotFound({description}: {description: string}){
             <h1 className="text-5xl">ERROR 403</h1>
             <h1>{description}</h1>
             <div className="flex justify-between min-w-75">
-                <Button onClick={()=>{navigate("/login")}} className="bg-[#3B82F6] border p-4 rounded-2xl hover:bg-[#2563EB] text-white">
+                <Button onClick={()=>{navigate("/login")}} className=" border p-4 rounded-2xl text-white">
                         Login
                 </Button>
-                <Link to={"/"} className="bg-[#EC4899] border p-4 rounded-2xl hover:bg-[#de3389] text-white">
+                <Link to={"/"} className="bg-[#674f77] border p-4 rounded-2xl hover:bg-[#524560] text-white">
                     Go Back
                 </Link>
                     <Button onClick={()=>{logout(); navigate("/")}} 
-                    className="bg-[#3B82F6] border p-4 rounded-2xl hover:bg-[#2563EB] text-white">
+                    className=" border p-4 rounded-2xl text-white">
                         Logout
                     </Button>
             </div>

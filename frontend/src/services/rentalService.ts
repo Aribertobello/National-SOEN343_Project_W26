@@ -36,8 +36,12 @@ export async function createRental(
       vehicle,
       user_id:        1,
       status:         'active',
-      start_time:     new Date().toISOString(),
-      payment_status: 'paid',
+      start_date_time:     new Date().toISOString(),
+      payment: {
+        id: 1,
+        total: 0,
+        status: 'pending',
+      },
     };
     store.addRental(rental);
     return rental;
@@ -45,7 +49,7 @@ export async function createRental(
 
   const raw = await ApiClient.getInstance().post<BackendRental>(
     '/api/rentals/rentals/',
-    { vehicle_id: payload.vehicle_id },
+    payload,
   );
   const rental = RentalAdapter.adapt(raw);
   store.addRental(rental);
@@ -71,7 +75,7 @@ export async function returnVehicle(rentalId: number): Promise<Rental> {
 
     const endTime       = new Date().toISOString();
     const durationHours =
-      (new Date(endTime).getTime() - new Date(rental.start_time).getTime()) /
+      (new Date(endTime).getTime() - new Date(rental.start_date_time).getTime()) /
       3_600_000;
     const context   = new PricingContext(
       getPricingStrategy(rental.vehicle.type, rental.vehicle.battery_level),
@@ -84,7 +88,7 @@ export async function returnVehicle(rentalId: number): Promise<Rental> {
     `/api/rentals/rentals/${rentalId}/return/`,
   );
   const returned = RentalAdapter.adapt(raw);
-  store.returnRental(returned.id, returned.end_time!, returned.total_cost!);
+  store.returnRental(returned.id, returned.end_date_time!, returned.total_cost!);
   return returned;
 }
 

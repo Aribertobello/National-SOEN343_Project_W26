@@ -9,13 +9,14 @@ export interface Rental {
   vehicle: Vehicle;
   user_id: number;
   status: RentalStatus;
-  start_time: string;   // ISO string
-  end_time?: string;    // ISO string — set on return
-  total_cost?: number;  // set on return
-  payment: Payment;
+  start_date_time: string; 
+  end_date_time?: string;  
+  total_cost?: number;     
+  payment?: Payment;      
 }
 
 export interface CreateRentalPayload {
   vehicle_id: number;
   payment_method: 'credit_card' | 'debit_card' | 'wallet';
+  end_date_time?: string
 }

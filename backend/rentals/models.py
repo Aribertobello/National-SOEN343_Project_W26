@@ -28,7 +28,7 @@ class RentableVehicle(Vehicle):
     class vehicleStatus(models.TextChoices):
         AVAILABLE = 'available', 'Available' 
         RENTEDOUT = 'rented-out', "Rented-Out"
-        OUTOFSERVICE = 'maintenence','Maintenance'
+        OUTOFSERVICE = 'maintenence','Maintenence'
 
     type = models.CharField(max_length=20, choices=VehicleType.choices)
     rate = models.DecimalField(max_digits=8, decimal_places=2)

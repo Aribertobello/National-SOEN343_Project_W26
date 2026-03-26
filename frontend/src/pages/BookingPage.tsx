@@ -31,6 +31,7 @@ export default function BookingPage({ config }: BookingPageProps) {
 
   const [step,          setStep]          = useState<Step>('review');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('credit_card');
+  const [endDateTime, setEndDateTime] = useState<string>('');
   const [submitting,    setSubmitting]    = useState(false);
   const [error,         setError]         = useState<string | null>(null);
   const [rental,        setRental]        = useState<Rental | null>(null);
@@ -66,6 +67,7 @@ export default function BookingPage({ config }: BookingPageProps) {
       const newRental = await createRental(vehicle, {
         vehicle_id: vehicle.id,
         payment_method: paymentMethod,
+        end_date_time: endDateTime,
       });
       setRental(newRental);
       setStep('confirm');
@@ -155,6 +157,16 @@ export default function BookingPage({ config }: BookingPageProps) {
               <Row label="Rate"        value={`$${vehicle.price_per_unit.toFixed(2)} ${config.rateLabel}`} />
               <Row label="Min. charge" value={`$${minimumCost.toFixed(2)}`} />
             </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="end-time" className="text-sm text-muted-foreground font-medium">Select rental end time</label>
+              <input
+                id="end-time"
+                type="datetime-local"
+                value={endDateTime}
+                onChange={e => setEndDateTime(e.target.value)}
+                className="border rounded-xl bg-muted-foreground p-2 text-sm text-black"
+              />
+            </div>
 
             {/* Strategy: show vehicle-type-specific billing rule */}
             <div className="flex items-start gap-2 rounded-xl bg-blue-50 border border-blue-100 px-3 py-2.5">
@@ -236,7 +248,10 @@ export default function BookingPage({ config }: BookingPageProps) {
 
           <div className="rounded-2xl border bg-card w-full p-4 divide-y text-sm">
             <Row label="Rental ID" value={`#${rental.id}`} />
-            <Row label="Started"   value={new Date(rental.start_time).toLocaleTimeString()} />
+            <Row label="Started"   value={new Date(rental.start_date_time).toLocaleTimeString()} />
+            {rental.end_date_time && (
+              <Row label="Ends" value={new Date(rental.end_date_time).toLocaleString()} />
+            )}
             <Row label="Billing"   value={pricing.getDescription()} />
           </div>
 

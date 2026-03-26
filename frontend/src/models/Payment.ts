@@ -5,6 +5,9 @@ export const PaymentStatus =  {
     FAILED: "failed"
 } as const;
 
+export type PaymentStatusType = typeof PaymentStatus[keyof typeof PaymentStatus];
+
+
 export interface Payment{
     id: number,
     total: number,

@@ -3,7 +3,7 @@ import type { Location } from "@/models/location";
 import type { RentalStation } from "./RentalStation";
 
 export type VehicleType = "car" | "bike" | "escooter";
-export type VehicleStatus = "available" | "rented" | "maintenance";
+export type VehicleStatus = "available" | "rented-out" | "maintenance";
 export interface Vehicle {
   id: number;
   type: VehicleType;
@@ -31,7 +31,7 @@ export interface Vehicle {
 export const RentalVehicleStatus =  {
     AVAILABLE: "available",
     RENTEDOUT: "rented-out",
-    OUTOFSERVICE: "out-of-service"
+    MAINTENANCE: "maintenence"
 } as const;
 
 type RentalVehicleStatusType = typeof RentalVehicleStatus[keyof typeof RentalVehicleStatus];
@@ -44,7 +44,6 @@ export interface RentalVehicle {
   station: RentalStation
   rate : number;
   overtime_rate: number;
-  operatorName: "string";
   rental: Rental;
   capacity: number;
 }

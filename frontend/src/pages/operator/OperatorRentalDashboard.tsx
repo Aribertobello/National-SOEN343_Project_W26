@@ -1,44 +1,60 @@
-import VehicleCard from "@/components/vehicles/VehicleCard";
+//import VehicleCard from "@/components/vehicles/VehicleCard";
 import { type RentalVehicle, type VehicleType } from "@/models/vehicle";
+import { type RentalStation } from "@/models/RentalStation";
 import { useEffect, useState } from "react";
 import { ApiClient } from "@/utils/ApiClient";
 import { Button } from "@/components/ui/button";
 import OperatorVehicleCard from "@/components/OperatorVehicleCard";
-import VehicleDetailModal from "@/components/VehicleDetailModal";
-import AddVehicleDrawer from "@/components/AddVehicleDrawer";
+//import VehicleDetailModal from "@/components/VehicleDetailModal";
+import AddVehicleDrawer from "@/components/OperatorFormDrawer";
 
-export default async function operatorRentalDashboard(){
+export default function operatorRentalDashboard(){
 
     const [loading, setLoading] = useState<boolean>(true);
     const [stationView, setStationView] = useState<boolean>(false);
+    const [stations, setStations] = useState<RentalStation[]>([]);
     const [vehicles, setVehicles] = useState<RentalVehicle[]>([]);
     const [bikes, setBikes] = useState<RentalVehicle[]>([]);
     const [cars, setCars] = useState<RentalVehicle[]>([]);
     const [scooters, setScooters] = useState<RentalVehicle[]>([]);
     const [rentalClientNames,setRentalClientNames] = useState<Record<number, string>>({});
     const [selectedVehicle,setSelectedVehicle] = useState<RentalVehicle | null>(null);
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    
+
 
     
    
     useEffect(() => {
-        ApiClient.getInstance().get("api/rentals/op/vehicles/")
+        ApiClient.getInstance().get("/api/rentals/op/vehicles/")
         .then((data) => {
+            //TODO use adapter pattern to change payload to front end models
             const v = data as RentalVehicle[];
             setVehicles(v);
-            setBikes(vehicles.filter((vehicle)=>(vehicle.type === "bike")));
-            setCars(vehicles.filter((vehicle)=>(vehicle.type === "car")));
-            setScooters(scooters.filter((vehicle)=>(vehicle.type === "escooter")));
+            console.log(v);
+            setBikes(v.filter((vehicle)=>(vehicle.type == "bike")));
+            console.log(bikes);
+            setCars(v.filter((vehicle)=>(vehicle.type === "car")));
+            setScooters(v.filter((vehicle)=>(vehicle.type === "escooter")));
             setLoading(false);
             const names: Record<number, string> = {};
-            vehicles.filter((vehicle) => 
+            v.filter((vehicle) => 
                !!vehicle.rental 
             ).forEach( async (vehicle) => {
                 names[vehicle.id] = await getClientNameFor(vehicle.rental.id);
             })
         })
-    });
-   
+    },[]);
 
+    useEffect(() => {
+        ApiClient.getInstance().get("api/rentals/op/stations/")
+        .then((data) => {
+
+            const s = data as RentalStation[];
+            setStations(s);
+        })
+    },[]);
+   
 
     const getClientNameFor = async (rentalId: number) => {
         try{
@@ -52,52 +68,85 @@ export default async function operatorRentalDashboard(){
 
     return(
         <>
-        <div>
+        <div className="p-10 min-w-[80%] space-y-5">
+            <div className="text-3xl font-bold tracking-tight">Rental Vehicles</div>
             <div className="flex justify-between">
-                <h1 className="text-2xl"> Your vehicles registered for rent</h1>
+                <h1 className="text-muted-foreground"> Your vehicles registered for rent</h1>
                 <Button>seperate by station</Button>
             </div>
             
-            <div>
-                <h1 className="text-xl"> Bikes</h1> 
+            <div className="sapc-y-2">
+                <h1 className="text-xl"> Bikes</h1>
+                 <hr className="py-2"/>
                 <ul>
-                    {bikes.map((bike) =>(
-                        <OperatorVehicleCard vehicle={bike} clientName={rentalClientNames[bike.rental.id]}/>
-                    ))}
+                    <div className="flex flex-col space-y-4">
+                        {bikes.length !== 0 ? (
+                            bikes.map((bike) =>(
+                            <OperatorVehicleCard vehicle={bike} 
+                            clientName={bike.rental ? rentalClientNames[bike.rental.id]: "N/A"}/>
+                        ))):
+                        <span className="text-muted-foreground">
+                            You have no bikes up for rental at the moment    
+                        </span>}
+                        <Button className="max-w-[40%]" onClick={() => setDrawerOpen(true)}>
+                            put a bike up for rental
+                        </Button>
+                    </div>
+                    
                 </ul>
             </div>
 
-            <div>
-                <h1 className="text-xl"> Cars</h1> 
+            <div className="spac-y-2">
+                <h1 className="text-xl"> Cars</h1>
+                 <hr className="py-2"/>
                 <ul>
-                    {cars.map((car) =>(
-                        <OperatorVehicleCard vehicle={car} clientName={rentalClientNames[car.rental.id]}/>
-                    ))}
+                    <div className="flex flex-col space-y-4">
+                        {cars.length !== 0 ? (
+                        cars.map((car) =>(
+                        <OperatorVehicleCard vehicle={car} 
+                            clientName={car.rental ? rentalClientNames[car.rental.id]: "N/A"}/>
+                        ))):
+                        <span className="text-muted-foreground">
+                            You have no cars up for rental at the moment    
+                        </span>}
+                        <Button className="max-w-[40%]" onClick={() => setDrawerOpen(true)}>
+                            put a car up for rental
+                        </Button>
+                    </div>
                 </ul>
             </div>
-            <div>
+            <div className="spac-y-2">
                 <h1 className="text-xl"> E-Scooters</h1> 
+                <hr className="py-2"/>
                 <ul>
-                    {scooters.map((scooter) =>(
-                        <OperatorVehicleCard vehicle={scooter} clientName={rentalClientNames[scooter.rental.id]}/>
-                    ))}
+                    <div className="flex flex-col space-y-4">
+                        {scooters.length !== 0 ? (
+                        scooters.map((scooter) =>(
+                        <div className="hover:bg-muted cursor-pointer">
+                            <OperatorVehicleCard vehicle={scooter} 
+                            clientName={scooter.rental ? rentalClientNames[scooter.rental.id] : "N/A"}/>
+                        </div>
+                    ))):
+                    <span className="text-muted-foreground">
+                        You have no scooters up for rental at the moment    
+                    </span>}
+                        <Button className="max-w-[40%]" onClick={() => setDrawerOpen(true)}>
+                            put an E-Scooter up for rental
+                        </Button>
+                    </div>
                 </ul>
             </div>   
         </div>
 
-           
-
-        </>
-    )
-} 
-/*<AddVehicleDrawer
+        <AddVehicleDrawer
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
-        stations={stations}          // pass your RentalStation[] here
-        onVehiclesAdded={(newVehicles) => {
-            // POST to your API, then refresh the list
-        }}
         /> 
+        </>
+    );
+} 
+
+/*
 
         <VehicleDetailModal
         open={!!selectedVehicle}
