@@ -83,6 +83,13 @@ export default function Header() {
                 <NavigationMenuList>
                     <NavigationMenuItem>
                         <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
+                            <NavigationMenuContent className="flex flex-row justify-between min-w-md">
+                                <NavigationMenuLink asChild>
+                                    <Link to={"/admin-overview"}>
+                                    Admin Overview
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuContent>
                     </NavigationMenuItem>
                     {user ? 
                     <Button className="bg-background text-foreground rounded-lg" onClick={handleLogout}>

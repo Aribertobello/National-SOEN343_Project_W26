@@ -10,6 +10,7 @@ import RentCarPage from "@/pages/RentCarPage";
 import authRouter from "./AuthRouter";
 import BookingPage    from "@/pages/BookingPage";
 import MyRentalsPage  from "@/pages/MyRentalsPage";
+import AdminOverview from "@/pages/AdminOverview";
 
 import { BikeFactory, CarFactory, EScooterFactory } from "@/utils/factories";
 
@@ -59,6 +60,9 @@ const router = createBrowserRouter([
             },
             {   path: "my-rentals",
                 element: <MyRentalsPage />
+            },
+            {   path: "admin-overview",
+                element: <AdminOverview />
             },
             {   path: "*",
                 element: <NotFound />

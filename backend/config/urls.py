@@ -27,4 +27,5 @@ urlpatterns = [
     path('api/health/', health_check, name='health'),
     path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/', include('users.urls')),
+    path('api/admin/', include('analytics.urls')),
 ]
