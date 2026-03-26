@@ -12,6 +12,7 @@ import BookingPage    from "@/pages/BookingPage";
 import MyRentalsPage  from "@/pages/MyRentalsPage";
 import OperatorRentalDashboard from "@/pages/operator/OperatorRentalDashboard";
 import ParkingPage from "@/pages/ParkingPage";
+import AdminOverview from "@/pages/AdminOverview";
 
 import { BikeFactory, CarFactory, EScooterFactory } from "@/utils/factories";
 import ProtectedRoute from "./ProtectedRoute";
@@ -91,6 +92,9 @@ const router = createBrowserRouter([
                 element: <ProtectedRoute role={Role.OPERATOR}>
                             <OperatorRentalDashboard/>
                         </ProtectedRoute>
+            },
+            {   path: "admin-overview",
+                element: <AdminOverview />
             },
             {   path: "*",
                 element: <NotFound />

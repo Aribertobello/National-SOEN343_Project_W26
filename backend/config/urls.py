@@ -31,4 +31,5 @@ urlpatterns = [
     path('api/rentals/', include('rentals.urls')),
     path('api/core/', include('core.urls')),
     path('api/parking/', include('parkings.urls')),
+    path('api/admin/', include('analytics.urls')),
 ]

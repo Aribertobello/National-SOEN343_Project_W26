@@ -108,6 +108,11 @@ export default function Header() {
                                     My Fleet Analytics
                                 </Link>
                             </NavigationMenuLink>
+                                                            <NavigationMenuLink asChild>
+                                    <Link to={"/admin-overview"}>
+                                    Admin Overview
+                                    </Link>
+                                </NavigationMenuLink>
                         </NavigationMenuContent>
                     </NavigationMenuItem>
                 }  
