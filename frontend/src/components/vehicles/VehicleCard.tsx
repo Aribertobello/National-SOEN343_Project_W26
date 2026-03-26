@@ -98,7 +98,7 @@ export default function VehicleCard({ vehicle, config }: VehicleCardProps) {
             ${vehicle.price_per_unit.toFixed(2)}
           </span>
           <span className="text-xs text-muted-foreground ml-1">
-            {vehicle.currency} {config.rateLabel}
+            {config.rateLabel}
           </span>
         </div>
         <Link

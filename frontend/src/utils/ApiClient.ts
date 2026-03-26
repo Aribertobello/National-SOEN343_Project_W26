@@ -36,15 +36,34 @@ export class ApiClient {
     return headers;
   }
 
+  private async throwHttpError(method: string, path: string, res: Response): Promise<never> {
+    let serverMessage: string | null = null;
+
+    try {
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const payload = (await res.json()) as { error?: string; detail?: string; message?: string };
+        serverMessage = payload.error || payload.detail || payload.message || null;
+      } else {
+        const text = await res.text();
+        serverMessage = text.trim() || null;
+      }
+    } catch {
+      serverMessage = null;
+    }
+
+    const fallback = `${method} ${path} failed with status ${res.status}`;
+    throw new Error(serverMessage || fallback);
+  }
+
   async get<T>(path: string): Promise<T> {
     const res = await fetch(`${this.baseUrl}${path}`, {
       headers: this.buildHeaders(),
       credentials: 'include',
     });
-    if (!res.ok){
-      console.log(res.status)
-      throw new Error(`GET ${path} failed with status ${res.status}`);
-    } 
+    if (!res.ok) {
+      await this.throwHttpError('GET', path, res);
+    }
     return res.json() as Promise<T>;
   }
 
@@ -55,7 +74,9 @@ export class ApiClient {
       credentials: 'include',
       body: JSON.stringify(body),
     });
-    if (!res.ok) throw new Error(`POST ${path} failed with status ${res.status}`);
+    if (!res.ok) {
+      await this.throwHttpError('POST', path, res);
+    }
     return res.json() as Promise<T>;
   }
 
@@ -66,7 +87,9 @@ export class ApiClient {
       headers: this.buildHeaders(),
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
-    if (!res.ok) throw new Error(`PATCH ${path} failed with status ${res.status}`);
+    if (!res.ok) {
+      await this.throwHttpError('PATCH', path, res);
+    }
     return res.json() as Promise<T>;
   }
 }

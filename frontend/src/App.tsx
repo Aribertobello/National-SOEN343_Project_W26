@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import appLogo from '/appicon.svg'
 import Header from './components/navigation/Header'
@@ -17,7 +18,7 @@ function App() {
       <Header/>
       <Outlet/>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

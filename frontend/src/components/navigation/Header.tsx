@@ -24,6 +24,7 @@ export default function Header() {
 
     const handleLogout = () => {
         logout();
+        navigate("/home");
     }
 
     return (

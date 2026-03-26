@@ -11,15 +11,15 @@ import authRouter from "./AuthRouter";
 import BookingPage    from "@/pages/BookingPage";
 import MyRentalsPage  from "@/pages/MyRentalsPage";
 import OperatorRentalDashboard from "@/pages/operator/OperatorRentalDashboard";
+import ParkingPage from "@/pages/ParkingPage";
 
 import { BikeFactory, CarFactory, EScooterFactory } from "@/utils/factories";
 import ProtectedRoute from "./ProtectedRoute";
 import { Role } from "@/models/user";
 
-const bikeConfig     = new BikeFactory().createConfig();
-const carConfig      = new CarFactory().createConfig();
+const bikeConfig = new BikeFactory().createConfig();
+const carConfig = new CarFactory().createConfig();
 const escooterConfig = new EScooterFactory().createConfig();
-
 
 const router = createBrowserRouter([
     {
@@ -78,6 +78,11 @@ const router = createBrowserRouter([
             {   path: "my-rentals",
                 element: <ProtectedRoute role={Role.CUSTOMER}>
                             <MyRentalsPage />
+                        </ProtectedRoute>
+            },
+            {   path: "parking",
+                element: <ProtectedRoute role={Role.CUSTOMER}>
+                            <ParkingPage />
                         </ProtectedRoute>
             },
             {
