@@ -24,7 +24,7 @@ export default function Header() {
 
     const handleLogout = () => {
         logout();
-        navigate("/home");
+        navigate("/");
     }
 
     return (
@@ -38,11 +38,11 @@ export default function Header() {
                 </div>
                 <NavigationMenu className="relative w-full">
                     <NavigationMenuList className="flex justify-between">
-                        {user?.role === Role.ADMIN ? 
+                        {user?.role === Role.ADMIN ?
                         <NavigationMenuItem>
                             <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
                         </NavigationMenuItem>
-                        : user?.role === Role.OPERATOR ? 
+                        : user?.role === Role.OPERATOR ?
                         <NavigationMenuItem>
                             <Link className="hover:bg-accent rounded-lg p-2" to={"/op"}>Rental Dashboard</Link>
                         </NavigationMenuItem>
@@ -87,30 +87,43 @@ export default function Header() {
                                 <Link className="hover:bg-accent rounded-lg p-2" to={"/parking"}>Reserve a Parking spot</Link>
                             </NavigationMenuItem>
                         </>}
-                        
+
                     </NavigationMenuList>
                 </NavigationMenu>
             </div>
             <NavigationMenu>
                 <NavigationMenuList>
+                    {user?.role == Role.CUSTOMER ?
+                     <NavigationMenuItem>
+                        <Link to={"/my-rentals"}>
+                            My rentals
+                        </Link>
+                    </NavigationMenuItem>
+                    :
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
+                        <NavigationMenuContent className="flex flex-col min-w-[200px] p-2 gap-1">
+                            <NavigationMenuLink asChild>
+                                <Link className="hover:bg-accent rounded-lg p-2 text-sm" to={"/analytics"}>
+                                    My Fleet Analytics
+                                </Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                }  
                     {user ? 
                     <div className="flex justify-between">
                         
-                        <NavigationMenuLink asChild>
-                            <Link to={"/my-rentals"}>
-                                    My rentals
-                            </Link>
-                        </NavigationMenuLink>
+                        
                         <Button className="bg-background text-foreground rounded-lg" onClick={handleLogout}>
                             Logout
                         </Button>
                     </div>
-                    
                     :
                     <Button className="bg-background text-foreground rounded-lg" onClick={handleLogin}>
                         Login
                     </Button>
-                    }  
+                    }
                 </NavigationMenuList>
             </NavigationMenu>
         </div>

@@ -21,6 +21,7 @@ const bikeConfig = new BikeFactory().createConfig();
 const carConfig = new CarFactory().createConfig();
 const escooterConfig = new EScooterFactory().createConfig();
 
+import AnalyticsDashboard from '../pages/Analytics/AnalyticsDashboard';
 const router = createBrowserRouter([
     {
         path: "/",
@@ -38,25 +39,25 @@ const router = createBrowserRouter([
             {
                 path: "rent",
                 element: <ProtectedRoute role={Role.CUSTOMER}>
-                            <RentPage /> 
-                        </ProtectedRoute>   
+                            <RentPage />
+                        </ProtectedRoute>
             },
             {
                 path: "rent-bike",
                 element: <ProtectedRoute role={Role.CUSTOMER}>
-                            <RentBikePage /> 
+                            <RentBikePage />
                         </ProtectedRoute>
             },
             {
                 path: "rent-escooter",
                 element: <ProtectedRoute role={Role.CUSTOMER}>
-                            <RentEScooterPage /> 
+                            <RentEScooterPage />
                         </ProtectedRoute>
             },
             {
                 path: "rent-car",
                 element: <ProtectedRoute role={Role.CUSTOMER}>
-                            <RentCarPage /> 
+                            <RentCarPage />
                         </ProtectedRoute>
             },
             {   path: "rent-bike/:id",
@@ -73,7 +74,7 @@ const router = createBrowserRouter([
                 element: <ProtectedRoute role={Role.CUSTOMER}>
                             <BookingPage config={carConfig} />
                         </ProtectedRoute>
-                
+
             },
             {   path: "my-rentals",
                 element: <ProtectedRoute role={Role.CUSTOMER}>
@@ -93,6 +94,12 @@ const router = createBrowserRouter([
             },
             {   path: "*",
                 element: <NotFound />
+            },
+            {
+                path: "analytics",
+                element: <ProtectedRoute role={Role.OPERATOR}>
+                            <AnalyticsDashboard />
+                        </ProtectedRoute>
             },
         ]
     },
