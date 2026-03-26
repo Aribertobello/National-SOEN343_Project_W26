@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ApiClient } from "@/utils/ApiClient";
 import { Button } from "@/components/ui/button";
 import OperatorVehicleCard from "@/components/OperatorVehicleCard";
-//import VehicleDetailModal from "@/components/VehicleDetailModal";
+import VehicleDetailModal from "@/components/VehicleDetailModal";
 import AddVehicleDrawer from "@/components/OperatorFormDrawer";
 
 export default function operatorRentalDashboard(){
@@ -21,39 +21,42 @@ export default function operatorRentalDashboard(){
     const [selectedVehicle,setSelectedVehicle] = useState<RentalVehicle | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     
+    const handleOpenDetails = (vehicle: RentalVehicle) => {
+        setSelectedVehicle(vehicle);
+    };
 
+    const handleDeleteVehicle = (vehicleId: number) => {
+        setVehicles((prev) => prev.filter(v => v.id !== vehicleId));
+        setBikes((prev) => prev.filter(v => v.id !== vehicleId));
+        setCars((prev) => prev.filter(v => v.id !== vehicleId));
+        setScooters((prev) => prev.filter(v => v.id !== vehicleId));
+    };
 
-    
-   
     useEffect(() => {
-        ApiClient.getInstance().get("/api/rentals/op/vehicles/")
-        .then((data) => {
-            //TODO use adapter pattern to change payload to front end models
-            const v = data as RentalVehicle[];
-            setVehicles(v);
-            console.log(v);
-            setBikes(v.filter((vehicle)=>(vehicle.type == "bike")));
-            console.log(bikes);
-            setCars(v.filter((vehicle)=>(vehicle.type === "car")));
-            setScooters(v.filter((vehicle)=>(vehicle.type === "escooter")));
-            setLoading(false);
+        const fetchData = async () => {
+            const [vehicleData, rentalData] = await Promise.all([
+                ApiClient.getInstance().get<RentalVehicle[]>("/api/rentals/op/vehicles/"),
+                ApiClient.getInstance().get<any[]>("/api/rentals/op/rentals/"),
+            ]);
+
+            setVehicles(vehicleData);
+            setBikes(vehicleData.filter(v => v.type === "bike"));
+            setCars(vehicleData.filter(v => v.type === "car"));
+            setScooters(vehicleData.filter(v => v.type === "escooter"));
+
+            
             const names: Record<number, string> = {};
-            v.filter((vehicle) => 
-               !!vehicle.rental 
-            ).forEach( async (vehicle) => {
-                names[vehicle.id] = await getClientNameFor(vehicle.rental.id);
-            })
-        })
-    },[]);
+            rentalData.forEach((r) => {
+                names[r.id] = r.user;
+            });
 
-    useEffect(() => {
-        ApiClient.getInstance().get("api/rentals/op/stations/")
-        .then((data) => {
+            setRentalClientNames(names);
+            setLoading(false);
+        };
 
-            const s = data as RentalStation[];
-            setStations(s);
-        })
-    },[]);
+        fetchData();
+    }, []);
+ 
    
 
     const getClientNameFor = async (rentalId: number) => {
@@ -71,8 +74,7 @@ export default function operatorRentalDashboard(){
         <div className="p-10 min-w-[80%] space-y-5">
             <div className="text-3xl font-bold tracking-tight">Rental Vehicles</div>
             <div className="flex justify-between">
-                <h1 className="text-muted-foreground"> Your vehicles registered for rent</h1>
-                <Button>seperate by station</Button>
+                <h1 className="text-muted-foreground"> Your vehicles registered for rent</h1> 
             </div>
             
             <div className="sapc-y-2">
@@ -83,7 +85,8 @@ export default function operatorRentalDashboard(){
                         {bikes.length !== 0 ? (
                             bikes.map((bike) =>(
                             <OperatorVehicleCard vehicle={bike} 
-                            clientName={bike.rental ? rentalClientNames[bike.rental.id]: "N/A"}/>
+                            clientName={bike.rental ? rentalClientNames[bike.rental.id]: "N/A"}
+                            onClickDetails={handleOpenDetails}/>
                         ))):
                         <span className="text-muted-foreground">
                             You have no bikes up for rental at the moment    
@@ -104,7 +107,8 @@ export default function operatorRentalDashboard(){
                         {cars.length !== 0 ? (
                         cars.map((car) =>(
                         <OperatorVehicleCard vehicle={car} 
-                            clientName={car.rental ? rentalClientNames[car.rental.id]: "N/A"}/>
+                            clientName={car.rental ? rentalClientNames[car.rental.id]: "N/A"}
+                            onClickDetails={handleOpenDetails}/>
                         ))):
                         <span className="text-muted-foreground">
                             You have no cars up for rental at the moment    
@@ -124,7 +128,8 @@ export default function operatorRentalDashboard(){
                         scooters.map((scooter) =>(
                         <div className="hover:bg-muted cursor-pointer">
                             <OperatorVehicleCard vehicle={scooter} 
-                            clientName={scooter.rental ? rentalClientNames[scooter.rental.id] : "N/A"}/>
+                            clientName={scooter.rental ? rentalClientNames[scooter.rental.id] : "N/A"}
+                            onClickDetails={handleOpenDetails}/>
                         </div>
                     ))):
                     <span className="text-muted-foreground">
@@ -137,20 +142,17 @@ export default function operatorRentalDashboard(){
                 </ul>
             </div>   
         </div>
-
+        <VehicleDetailModal
+        open={!!selectedVehicle}
+        onOpenChange={(v) => { if (!v) setSelectedVehicle(null); }}
+        vehicle={selectedVehicle}
+        clientName={selectedVehicle?.rental ? rentalClientNames[selectedVehicle.rental.id] : undefined}
+        onDelete={handleDeleteVehicle}
+        />
         <AddVehicleDrawer
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
         /> 
         </>
     );
-} 
-
-/*
-
-        <VehicleDetailModal
-        open={!!selectedVehicle}
-        onOpenChange={(v) => { if (!v) setSelectedVehicle(null); }}
-        vehicle={selectedVehicle}
-        clientName={rentalClientNames[selectedVehicle.rental.id]}
-        /> */  
+}   

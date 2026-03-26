@@ -94,9 +94,18 @@ export default function Header() {
             <NavigationMenu>
                 <NavigationMenuList>
                     {user ? 
-                    <Button className="bg-background text-foreground rounded-lg" onClick={handleLogout}>
-                        Logout
-                    </Button>
+                    <div className="flex justify-between">
+                        
+                        <NavigationMenuLink asChild>
+                            <Link to={"/my-rentals"}>
+                                    My rentals
+                            </Link>
+                        </NavigationMenuLink>
+                        <Button className="bg-background text-foreground rounded-lg" onClick={handleLogout}>
+                            Logout
+                        </Button>
+                    </div>
+                    
                     :
                     <Button className="bg-background text-foreground rounded-lg" onClick={handleLogin}>
                         Login

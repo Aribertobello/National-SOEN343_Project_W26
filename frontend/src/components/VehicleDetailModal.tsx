@@ -6,39 +6,36 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { MapPin } from "lucide-react";
 import { RentalVehicleStatus, type RentalVehicle } from "@/models/vehicle";
 import type { Rental } from "@/models/rental";
+import { ApiClient } from "@/utils/ApiClient";
 
-// ── Types ──────────────────────────────────────────────────────────────────
+import bikeIcon from "@/assets/bicycle.svg";
+import carIcon from "@/assets/carshare.svg";
+import scooterIcon from "@/assets/scooter.svg";
+
 
 interface VehicleDetailModalProps {
   vehicle: RentalVehicle | null;
   clientName?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onDelete: (vehicleId: number) => void;
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-const TYPE_ICON: Record<string, string> = {
-  bike:     "🚲",
-  car:      "🚗",
-  escooter: "🛴",
-};
 
 function StatusBadge({ status }: { status: RentalVehicle["status"] }) {
   const variants: Record<string, string> = {
     [RentalVehicleStatus.AVAILABLE]:    "bg-emerald-50 text-emerald-700 border-emerald-200",
     [RentalVehicleStatus.RENTEDOUT]:    "bg-blue-50 text-blue-700 border-blue-200",
-    [RentalVehicleStatus.OUTOFSERVICE]: "bg-muted text-muted-foreground border-border",
+    [RentalVehicleStatus.MAINTENANCE]: "bg-muted text-muted-foreground border-border",
   };
   const labels: Record<string, string> = {
     [RentalVehicleStatus.AVAILABLE]:    "Available",
     [RentalVehicleStatus.RENTEDOUT]:    "Rented out",
-    [RentalVehicleStatus.OUTOFSERVICE]: "Out of service",
+    [RentalVehicleStatus.MAINTENANCE]: "Out of service",
   };
   return (
     <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full border ${variants[status] ?? ""}`}>
@@ -85,25 +82,52 @@ export default function VehicleDetailModal({
   clientName,
   open,
   onOpenChange,
+  onDelete
 }: VehicleDetailModalProps) {
   if (!vehicle) return null;
 
   const rental: Rental | null = vehicle.rental ?? null;
   const payment = rental?.payment ?? null;
 
-  const startTime = rental?.start_time
-    ? new Date(rental.start_time).toLocaleString("en-CA", {
+  const startTime = rental?.start_date_time
+    ? new Date(rental.start_date_time).toLocaleString("en-CA", {
         dateStyle: "medium",
         timeStyle: "short",
       })
     : null;
 
-  const endTime = rental?.end_time
-    ? new Date(rental.end_time).toLocaleString("en-CA", {
+  const endTime = rental?.end_date_time
+    ? new Date(rental.end_date_time).toLocaleString("en-CA", {
         dateStyle: "medium",
         timeStyle: "short",
       })
     : null;
+
+    const iconPath = (() => {
+      switch (vehicle.type) {
+        case "bike":
+          return bikeIcon;
+        case "car":
+          return carIcon;
+        default:
+          return scooterIcon;
+      }
+    })();
+
+  const handleDelete = async () => {
+    if (!vehicle) return;
+
+    try {
+      await ApiClient.getInstance().delete(
+        `/api/rentals/op/vehicles/?id=${vehicle.id}`
+      );
+
+      onDelete(vehicle.id);   // notify parent
+      onOpenChange(false);    // close modal
+    } catch (err) {
+      console.error("Failed to delete vehicle", err);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -123,7 +147,7 @@ export default function VehicleDetailModal({
         <div className="px-6 pt-5 pb-1">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base font-medium">
-              <span className="text-xl">{TYPE_ICON[vehicle.type]}</span>
+              <img src={iconPath} className="w-10 h-10 object-contain"/>
               Vehicle #{vehicle.id}
               <StatusBadge status={vehicle.status} />
             </DialogTitle>
@@ -146,7 +170,7 @@ export default function VehicleDetailModal({
             </div>
             <div className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground">
               <MapPin className="w-3.5 h-3.5 shrink-0" />
-              {vehicle.location.adress}
+              {vehicle.location.address}
             </div>
           </section>
 
@@ -187,7 +211,14 @@ export default function VehicleDetailModal({
               </section>
             </>
           )}
-
+        <div className="pt-2 flex justify-end">
+          <button
+            onClick={handleDelete}
+            className="text-sm px-3 py-1.5 rounded-md bg-red-600 text-white hover:bg-red-700 transition"
+          >
+            Delete vehicle
+          </button>
+        </div>
         </div>
       </DialogContent>
     </Dialog>

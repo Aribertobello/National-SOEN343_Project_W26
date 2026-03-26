@@ -202,7 +202,7 @@ def operator_stations(request):
             }
         }, status=status.HTTP_201_CREATED)
     
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', "DELETE"])
 @permission_classes([IsAuthenticated])
 def operator_vehicles(request):
 
@@ -287,3 +287,46 @@ def operator_vehicles(request):
             created.append(v.id)
 
         return Response({'created': len(created), 'ids': created}, status=201)
+    
+    if request.method == 'DELETE':
+        vehicle_id = request.query_params.get('id')
+        if not vehicle_id:
+            return Response({'error': 'id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            vehicle = RentableVehicle.objects.get(pk=vehicle_id, operator=request.user)
+        except RentableVehicle.DoesNotExist:
+            return Response({'error': 'Vehicle not found.'}, status=status.HTTP_404_NOT_FOUND)
+        if vehicle.status == RentableVehicle.vehicleStatus.RENTEDOUT:
+            return Response({'error': 'Cannot delete a vehicle that is currently rented out.'}, status=status.HTTP_400_BAD_REQUEST)
+        vehicle.delete()
+        return Response({'message': f'Vehicle #{vehicle_id} deleted successfully.'})
+
+# GET /api/rentals/op/rentals/
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def operator_rentals(request):
+    rentals = Rental.objects.filter(
+        vehicle__operator=request.user
+    ).select_related('vehicle', 'vehicle__location', 'user', 'payment').order_by('-created_at')
+
+    data = [
+        {
+            'id': r.id,
+            'status': r.status,
+            'start_date_time': r.start_date_time,
+            'end_date_time': r.end_date_time,
+            'user': r.user.email,
+            'payment': {
+                'total': float(r.payment.total),
+                'status': r.payment.status,
+            } if r.payment else None,
+            'vehicle': {
+                'id': r.vehicle.id,
+                'type': r.vehicle.type,
+                'rate': float(r.vehicle.rate),
+            },
+        }
+        for r in rentals
+    ]
+
+    return Response(data)

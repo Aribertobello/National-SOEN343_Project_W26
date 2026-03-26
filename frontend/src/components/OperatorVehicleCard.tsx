@@ -10,9 +10,10 @@ import scooterIcon from "@/assets/scooter.svg";
 interface OperatorVehicleCardProps {
   vehicle: RentalVehicle;
   clientName?: string
+  onClickDetails: (v: RentalVehicle) => void ;
 }
 
-export default function OperatorVehicleCard({vehicle, clientName}: OperatorVehicleCardProps) {
+export default function OperatorVehicleCard({vehicle, clientName, onClickDetails}: OperatorVehicleCardProps) {
 
     const iconPath = (() => {
       switch (vehicle.type) {
@@ -103,7 +104,7 @@ export default function OperatorVehicleCard({vehicle, clientName}: OperatorVehic
             per day
           </span>
         </div>
-        <Button onClick={()=>{}/*see rental detials if rented opens modal*/}>
+        <Button onClick={() => onClickDetails(vehicle)}>
             see details
         </Button>
       </div>
