@@ -38,11 +38,11 @@ export default function Header() {
                 </div>
                 <NavigationMenu className="relative w-full">
                     <NavigationMenuList className="flex justify-between">
-                        {user?.role === Role.ADMIN ? 
+                        {user?.role === Role.ADMIN ?
                         <NavigationMenuItem>
                             <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
                         </NavigationMenuItem>
-                        : user?.role === Role.OPERATOR ? 
+                        : user?.role === Role.OPERATOR ?
                         <NavigationMenuItem>
                             <Link className="hover:bg-accent rounded-lg p-2" to={"/op"}>Rental Dashboard</Link>
                         </NavigationMenuItem>
@@ -87,13 +87,23 @@ export default function Header() {
                                 <Link className="hover:bg-accent rounded-lg p-2" to={"/parking"}>Reserve a Parking spot</Link>
                             </NavigationMenuItem>
                         </>}
-                        
+
                     </NavigationMenuList>
                 </NavigationMenu>
             </div>
             <NavigationMenu>
                 <NavigationMenuList>
-                    {user ? 
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
+                        <NavigationMenuContent className="flex flex-col min-w-[200px] p-2 gap-1">
+                            <NavigationMenuLink asChild>
+                                <Link className="hover:bg-accent rounded-lg p-2 text-sm" to={"/analytics"}>
+                                    My Fleet Analytics
+                                </Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    {user ?
                     <Button className="bg-background text-foreground rounded-lg" onClick={handleLogout}>
                         Logout
                     </Button>
@@ -101,7 +111,7 @@ export default function Header() {
                     <Button className="bg-background text-foreground rounded-lg" onClick={handleLogin}>
                         Login
                     </Button>
-                    }  
+                    }
                 </NavigationMenuList>
             </NavigationMenu>
         </div>

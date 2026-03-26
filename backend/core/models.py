@@ -19,7 +19,9 @@ class Location(models.Model):
     address = models.CharField(max_length=255, default="uknown")
     x = models.DecimalField(max_digits=8, decimal_places=6)
     y = models.DecimalField(max_digits=8, decimal_places=6)
-
+    city = models.ForeignKey(
+        "City", null=True, blank=True, on_delete=models.SET_NULL, related_name="locations"
+    )
 
 class City(models.Model):
     name = models.CharField(max_length=100)
