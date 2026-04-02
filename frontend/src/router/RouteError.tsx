@@ -10,12 +10,20 @@ interface routingError {
 export default function RouteError(){
     const err: routingError = useRouteError() as routingError;
     const navigate = useNavigate();
-    if(!err) return;
+   
 
     useEffect(() => {
         if(err.status == 404){
             navigate("/404");
         }
-    });
-    return <NotFound/>
+    },[err, navigate]);
+
+    if(!err) return;
+    
+    console.log(err);
+    
+    return <>
+        routing error <br/>
+        check console
+    </>
 }

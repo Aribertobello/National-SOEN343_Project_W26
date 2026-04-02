@@ -10,14 +10,18 @@ import RentCarPage from "@/pages/RentCarPage";
 import authRouter from "./AuthRouter";
 import BookingPage    from "@/pages/BookingPage";
 import MyRentalsPage  from "@/pages/MyRentalsPage";
+import OperatorRentalDashboard from "@/pages/operator/OperatorRentalDashboard";
+import ParkingPage from "@/pages/ParkingPage";
 
 import { BikeFactory, CarFactory, EScooterFactory } from "@/utils/factories";
+import ProtectedRoute from "./ProtectedRoute";
+import { Role } from "@/models/user";
 
-const bikeConfig     = new BikeFactory().createConfig();
-const carConfig      = new CarFactory().createConfig();
+const bikeConfig = new BikeFactory().createConfig();
+const carConfig = new CarFactory().createConfig();
 const escooterConfig = new EScooterFactory().createConfig();
 
-
+import AnalyticsDashboard from '../pages/Analytics/AnalyticsDashboard';
 const router = createBrowserRouter([
     {
         path: "/",
@@ -34,34 +38,68 @@ const router = createBrowserRouter([
             },
             {
                 path: "rent",
-                element: <RentPage />
+                element: <ProtectedRoute role={Role.CUSTOMER}>
+                            <RentPage />
+                        </ProtectedRoute>
             },
             {
                 path: "rent-bike",
-                element: <RentBikePage />
+                element: <ProtectedRoute role={Role.CUSTOMER}>
+                            <RentBikePage />
+                        </ProtectedRoute>
             },
             {
                 path: "rent-escooter",
-                element: <RentEScooterPage />
+                element: <ProtectedRoute role={Role.CUSTOMER}>
+                            <RentEScooterPage />
+                        </ProtectedRoute>
             },
             {
                 path: "rent-car",
-                element: <RentCarPage />
+                element: <ProtectedRoute role={Role.CUSTOMER}>
+                            <RentCarPage />
+                        </ProtectedRoute>
             },
             {   path: "rent-bike/:id",
-                element: <BookingPage config={bikeConfig} />
+                element: <ProtectedRoute role={Role.CUSTOMER}>
+                            <BookingPage config={bikeConfig} />
+                        </ProtectedRoute>
             },
             {   path: "rent-escooter/:id",
-                element: <BookingPage config={escooterConfig} />
+                element: <ProtectedRoute role={Role.CUSTOMER}>
+                            <BookingPage config={escooterConfig} />
+                        </ProtectedRoute>
             },
             {   path: "rent-car/:id",
-                element: <BookingPage config={carConfig} />
+                element: <ProtectedRoute role={Role.CUSTOMER}>
+                            <BookingPage config={carConfig} />
+                        </ProtectedRoute>
+
             },
             {   path: "my-rentals",
-                element: <MyRentalsPage />
+                element: <ProtectedRoute role={Role.CUSTOMER}>
+                            <MyRentalsPage />
+                        </ProtectedRoute>
+            },
+            {   path: "parking",
+                element: <ProtectedRoute role={Role.CUSTOMER}>
+                            <ParkingPage />
+                        </ProtectedRoute>
+            },
+            {
+                path: "op/",
+                element: <ProtectedRoute role={Role.OPERATOR}>
+                            <OperatorRentalDashboard/>
+                        </ProtectedRoute>
             },
             {   path: "*",
                 element: <NotFound />
+            },
+            {
+                path: "analytics",
+                element: <ProtectedRoute role={Role.OPERATOR}>
+                            <AnalyticsDashboard />
+                        </ProtectedRoute>
             },
         ]
     },

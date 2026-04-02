@@ -1,6 +1,11 @@
-
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { type User, parseUser } from "@/models/user";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { type User } from "@/models/user";
 import { authState } from "./authState";
 import { initAuth } from "@/services/authService";
 
@@ -12,8 +17,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-
-
   const [user, setUser] = useState<User | null>(null);
   const [loading, setIsLoading] = useState<boolean>(true);
 
@@ -34,8 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </AuthContext.Provider>
   );
-}
-
+};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

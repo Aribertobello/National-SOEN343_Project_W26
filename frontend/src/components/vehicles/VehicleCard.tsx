@@ -18,7 +18,7 @@ const statusMeta: Record<
     icon: <CircleCheck className="w-3.5 h-3.5" />,
     classes: "bg-green-100 text-green-700",
   },
-  rented: {
+  "rented-out": {
     label: "In Use",
     icon: <CircleX className="w-3.5 h-3.5" />,
     classes: "bg-red-100 text-red-700",
@@ -98,7 +98,7 @@ export default function VehicleCard({ vehicle, config }: VehicleCardProps) {
             ${vehicle.price_per_unit.toFixed(2)}
           </span>
           <span className="text-xs text-muted-foreground ml-1">
-            {vehicle.currency} {config.rateLabel}
+            {config.rateLabel}
           </span>
         </div>
         <Link

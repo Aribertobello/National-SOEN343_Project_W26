@@ -1,0 +1,47 @@
+[
+    {
+        "model": "core.location",
+        "pk": 1,
+        "fields": {
+            "address": "6521 Av. Somerled, Montréal, QC H4V 1S7",
+            "x": 45.46780,
+            "y": -73.63869
+        }
+    },
+    {"model": "core.location", "pk": 2, "fields": {"address": "1 Rue Notre-Dame O, Montréal, QC H2Y 1B6", "x": 45.50883, "y": -73.55466}},
+    {"model": "core.location", "pk": 3, "fields": {"address": "3550 Rue Jarry E, Montréal, QC H1Z 2G1", "x": 45.56345, "y": -73.60023}},
+    {"model": "core.location", "pk": 4, "fields": {"address": "1000 Rue de la Gauchetière O, Montréal, QC H3B 4W5", "x": 45.49789, "y": -73.56612}},
+    {"model": "core.location", "pk": 5, "fields": {"address": "5100 Rue Sherbrooke O, Montréal, QC H4A 1T3", "x": 45.46930, "y": -73.60582}},
+    {"model": "core.location", "pk": 6, "fields": {"address": "4600 Av. de Maisonneuve O, Montréal, QC H3Z 1L7", "x": 45.47523, "y": -73.59741}},
+    {"model": "core.location", "pk": 7, "fields": {"address": "1455 Rue Peel, Montréal, QC H3A 1S5", "x": 45.50123, "y": -73.57289}},
+    {"model": "core.location", "pk": 8, "fields": {"address": "6700 Av. du Parc, Montréal, QC H3N 1W7", "x": 45.52567, "y": -73.61123}},
+    {"model": "core.location", "pk": 9, "fields": {"address": "2001 Av. McGill College, Montréal, QC H3A 1G1", "x": 45.50451, "y": -73.57108}},
+    {"model": "core.location", "pk": 10, "fields": {"address": "1600 Av. Henri-Bourassa O, Montréal, QC H3M 3E2", "x": 45.55234, "y": -73.65782}},
+    {
+        "model": "core.location", 
+        "pk": 11, 
+        "fields": {
+        "address": "3150 Rue Remembrance, Lachine, QC H8T 1Y3", 
+        "x": 45.539354,
+        "y": -73.5823694
+        }
+    },
+    {"model": "core.location", "pk": 12, "fields": {"address": "400 Rue Sainte-Catherine E, Montréal, QC H2L 2C5", "x": 45.51678, "y": -73.56123}},
+    {"model": "core.location", "pk": 13, "fields": {"address": "3200 Rue Sherbrooke E, Montréal, QC H1W 1C3", "x": 45.52789, "y": -73.54567}},
+    {"model": "core.location", "pk": 14, "fields": {"address": "900 Boul. de Maisonneuve E, Montréal, QC H2L 1Y8", "x": 45.51823, "y": -73.55789}},
+    {"model": "core.location", "pk": 15, "fields": {"address": "5800 Boul. Décarie, Montréal, QC H3X 2K3", "x": 45.47451, "y": -73.63456}},
+    {"model": "core.location", "pk": 16, "fields": {"address": "1050 Côte du Beaver Hall, Montréal, QC H2Z 1S8", "x": 45.50345, "y": -73.56178}},
+    {"model": "core.location", "pk": 17, "fields": {"address": "4101 Rue Molson, Montréal, QC H1Y 3L1", "x": 45.54678, "y": -73.53890}},
+    {"model": "core.location", "pk": 18, "fields": {"address": "1380 Rue Laurier E, Montréal, QC H2J 1H5", "x": 45.53167, "y": -73.57523}},
+    {"model": "core.location", "pk": 19, "fields": {"address": "2345 Boul. René-Lévesque O, Montréal, QC H3H 2N2", "x": 45.49234, "y": -73.57890}},
+    {"model": "core.location", "pk": 20, "fields": {"address": "8000 Boul. Newman, LaSalle, QC H8N 1X1", "x": 45.43123, "y": -73.63890}},
+    {
+        "model":"core.location",
+        "pk":21,
+        "fields":{
+            "address":"",
+            "x":45.53935,
+            "y":-73.58236
+        }
+    }
+]
