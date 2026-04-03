@@ -12,8 +12,8 @@ import BookingPage    from "@/pages/BookingPage";
 import MyRentalsPage  from "@/pages/MyRentalsPage";
 import OperatorRentalDashboard from "@/pages/operator/OperatorRentalDashboard";
 import ParkingPage from "@/pages/ParkingPage";
-import AdminOverview from "@/pages/AdminOverview";
-import AdminCities from "@/pages/AdminCities";
+import AdminOverview from "@/pages/Analytics/AdminOverview";
+import AdminCities from "@/pages/Analytics/AdminCities";
 
 import { BikeFactory, CarFactory, EScooterFactory } from "@/utils/factories";
 import ProtectedRoute from "./ProtectedRoute";
@@ -95,10 +95,11 @@ const router = createBrowserRouter([
                         </ProtectedRoute>
             },
             {   path: "admin-overview",
-                element: <AdminOverview />
+                element:  <ProtectedRoute role={Role.ADMIN}>
+                <AdminOverview /></ProtectedRoute>
             },
             {   path: "admin-cities",
-                element: <AdminCities />
+                element: <ProtectedRoute role={Role.ADMIN}><AdminCities /></ProtectedRoute>
             },
             {   path: "*",
                 element: <NotFound />
