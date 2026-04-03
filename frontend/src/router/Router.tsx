@@ -13,6 +13,7 @@ import MyRentalsPage  from "@/pages/MyRentalsPage";
 import OperatorRentalDashboard from "@/pages/operator/OperatorRentalDashboard";
 import ParkingPage from "@/pages/ParkingPage";
 import AdminOverview from "@/pages/AdminOverview";
+import AdminCities from "@/pages/AdminCities";
 
 import { BikeFactory, CarFactory, EScooterFactory } from "@/utils/factories";
 import ProtectedRoute from "./ProtectedRoute";
@@ -95,6 +96,9 @@ const router = createBrowserRouter([
             },
             {   path: "admin-overview",
                 element: <AdminOverview />
+            },
+            {   path: "admin-cities",
+                element: <AdminCities />
             },
             {   path: "*",
                 element: <NotFound />

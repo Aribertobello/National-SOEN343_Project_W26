@@ -1,9 +1,10 @@
 from django.urls import path
 from . import views
-from .views import AdminOverviewView
+from .views import AdminOverviewView, AdminCitiesView
 
 urlpatterns = [
     path("overview/", AdminOverviewView.as_view(), name="overview"),
-        path("", views.analytics_dashboard, name="analytics-dashboard"),
+    path("cities/", AdminCitiesView.as_view(), name="cities"),
+    path("", views.analytics_dashboard, name="analytics-dashboard"),
     path("system/", views.system_analytics, name="analytics-system"),
 ]

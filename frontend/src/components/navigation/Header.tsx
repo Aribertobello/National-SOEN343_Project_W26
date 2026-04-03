@@ -113,6 +113,11 @@ export default function Header() {
                                     Admin Overview
                                     </Link>
                                 </NavigationMenuLink>
+                                                                <NavigationMenuLink asChild>
+                                    <Link to={"/admin-cities"}>
+                                    Admin Cities
+                                    </Link>
+                                </NavigationMenuLink>
                         </NavigationMenuContent>
                     </NavigationMenuItem>
                 }  
