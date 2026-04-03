@@ -7,7 +7,6 @@ import type { User } from "@/models/user";
 import { Role } from "@/models/user";
 import type { Vehicle, VehicleType } from "@/models/vehicle";
 
-
 interface AdminOverview {
   total_customers: number;
   total_operators: number;
@@ -48,9 +47,9 @@ const USER_LIMIT_OPTIONS = [10, 25, 50, 100] as const;
 type UserLimit = (typeof USER_LIMIT_OPTIONS)[number];
 
 const TIME_RANGE_OPTIONS: { value: TimeRange; label: string }[] = [
-  { value: "week",  label: "Past week"  },
+  { value: "week", label: "Past week" },
   { value: "month", label: "Past month" },
-  { value: "all",   label: "All time"   },
+  { value: "all", label: "All time" },
 ];
 
 const selectClass =
@@ -58,7 +57,6 @@ const selectClass =
   "focus:outline-none focus:ring-2 focus:ring-ring appearance-none cursor-pointer " +
   "bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\")] " +
   "bg-no-repeat bg-[center_right_0.6rem]";
-
 
 interface SliceData {
   label: string;
@@ -73,7 +71,12 @@ interface DonutChartProps {
   thickness?: number;
 }
 
-function DonutChart({ title, slices, size = 160, thickness = 38 }: DonutChartProps) {
+function DonutChart({
+  title,
+  slices,
+  size = 160,
+  thickness = 38,
+}: DonutChartProps) {
   const total = slices.reduce((s, d) => s + d.value, 0);
   const outerRadius = size / 2 - 4;
   const innerRadius = outerRadius - thickness;
@@ -123,8 +126,17 @@ function DonutChart({ title, slices, size = 160, thickness = 38 }: DonutChartPro
         </PieChart>
 
         {/* Centre label */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-xl font-bold leading-none">{total.toLocaleString()}</span>
+        <div
+          className="absolute pointer-events-none flex flex-col items-center justify-center"
+          style={{
+            top: "50%",
+            left: "50%",
+            transform: "translate(-35%, -35%)",
+          }}
+        >
+          <span className="text-xl font-bold leading-none">
+            {total.toLocaleString()}
+          </span>
           <span className="text-xs text-muted-foreground mt-0.5">total</span>
         </div>
       </div>
@@ -132,7 +144,10 @@ function DonutChart({ title, slices, size = 160, thickness = 38 }: DonutChartPro
       {/* Legend */}
       <ul className="w-full space-y-1.5">
         {slices.map((slice) => (
-          <li key={slice.label} className="flex items-center justify-between text-xs">
+          <li
+            key={slice.label}
+            className="flex items-center justify-between text-xs"
+          >
             <span className="flex items-center gap-2">
               <span
                 className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
@@ -161,29 +176,32 @@ const USER_ROLE_COLORS = {
 };
 
 const VEHICLE_TYPE_COLORS: Record<VehicleType, string> = {
-  car:      "#3b82f6",
-  bike:     "#10b981",
+  car: "#3b82f6",
+  bike: "#10b981",
   escooter: "#f97316",
 };
 
 function countVehicleTypes(vehicles: Vehicle[]): SliceData[] {
   const counts: Record<VehicleType, number> = { car: 0, bike: 0, escooter: 0 };
-  vehicles.forEach((v) => { if (v.type in counts) counts[v.type]++; });
-  return (Object.entries(counts) as [VehicleType, number][]).map(([type, value]) => ({
-    label: type.charAt(0).toUpperCase() + type.slice(1),
-    value,
-    color: VEHICLE_TYPE_COLORS[type],
-  }));
+  vehicles.forEach((v) => {
+    if (v.type in counts) counts[v.type]++;
+  });
+  return (Object.entries(counts) as [VehicleType, number][]).map(
+    ([type, value]) => ({
+      label: type.charAt(0).toUpperCase() + type.slice(1),
+      value,
+      color: VEHICLE_TYPE_COLORS[type],
+    }),
+  );
 }
-
 
 export default function AdminOverview() {
   const navigate = useNavigate();
   const api = ApiClient.getInstance();
 
-  const [overview,  setOverview]  = useState<AdminOverview | null>(null);
+  const [overview, setOverview] = useState<AdminOverview | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
-  const [errorMsg,  setErrorMsg]  = useState<string>("");
+  const [errorMsg, setErrorMsg] = useState<string>("");
 
   const [userLimit, setUserLimit] = useState<UserLimit>(50);
   const [timeRange, setTimeRange] = useState<TimeRange>("all");
@@ -197,7 +215,9 @@ export default function AdminOverview() {
           time_range: timeRange,
         });
 
-        const data = await api.get<AdminOverview>(`/api/admin/overview?${params}`);
+        const data = await api.get<AdminOverview>(
+          `/api/admin/overview?${params}`,
+        );
         setOverview(data);
         setLoadState("ready");
       } catch (err) {
@@ -209,7 +229,6 @@ export default function AdminOverview() {
     load();
   }, [userLimit, timeRange]);
 
-
   if (loadState === "error") {
     return (
       <div className="admin-overview__error">
@@ -220,32 +239,41 @@ export default function AdminOverview() {
     );
   }
 
-
   const metrics = overview
     ? [
         { label: "Total Customers", value: overview.total_customers },
         { label: "Total Operators", value: overview.total_operators },
-        { label: "Active Rentals",  value: overview.active_rentals  },
+        { label: "Active Rentals", value: overview.active_rentals },
         { label: "Completed Trips", value: overview.completed_trips },
       ]
     : [];
 
   const userRoleSlices: SliceData[] = overview
     ? [
-        { label: "Customers", value: overview.total_customers, color: USER_ROLE_COLORS.Customers },
-        { label: "Operators", value: overview.total_operators, color: USER_ROLE_COLORS.Operators },
+        {
+          label: "Customers",
+          value: overview.total_customers,
+          color: USER_ROLE_COLORS.Customers,
+        },
+        {
+          label: "Operators",
+          value: overview.total_operators,
+          color: USER_ROLE_COLORS.Operators,
+        },
       ]
     : [];
 
-  const activeVehicleSlices    = overview ? countVehicleTypes(overview.active_rentals_list.map((r) => r.vehicle))   : [];
-  const completedVehicleSlices = overview ? countVehicleTypes(overview.completed_trips_list.map((t) => t.vehicle)) : [];
+  const activeVehicleSlices = overview
+    ? countVehicleTypes(overview.active_rentals_list.map((r) => r.vehicle))
+    : [];
+  const completedVehicleSlices = overview
+    ? countVehicleTypes(overview.completed_trips_list.map((t) => t.vehicle))
+    : [];
 
   const isLoading = loadState === "loading";
 
-
   return (
     <div className="admin-overview p-6 space-y-6">
-
       {/*Header and filters*/}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -259,10 +287,14 @@ export default function AdminOverview() {
             <select
               className={selectClass}
               value={userLimit}
-              onChange={(e) => setUserLimit(Number(e.target.value) as UserLimit)}
+              onChange={(e) =>
+                setUserLimit(Number(e.target.value) as UserLimit)
+              }
             >
               {USER_LIMIT_OPTIONS.map((n) => (
-                <option key={n} value={n}>{n} users</option>
+                <option key={n} value={n}>
+                  {n} users
+                </option>
               ))}
             </select>
           </label>
@@ -275,41 +307,60 @@ export default function AdminOverview() {
               onChange={(e) => setTimeRange(e.target.value as TimeRange)}
             >
               {TIME_RANGE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </label>
 
           {isLoading && (
-            <span className="text-xs text-muted-foreground animate-pulse">Refreshing…</span>
+            <span className="text-xs text-muted-foreground animate-pulse">
+              Refreshing…
+            </span>
           )}
         </div>
       </div>
 
       {/* Metric boxes */}
-      <div className={`grid grid-cols-4 gap-4 transition-opacity duration-200 ${isLoading ? "opacity-50" : ""}`}>
+      <div
+        className={`grid grid-cols-4 gap-4 transition-opacity duration-200 ${isLoading ? "opacity-50" : ""}`}
+      >
         {metrics.map((metric) => (
-          <div key={metric.label} className="bg-card border rounded-xl p-4 shadow-sm">
-            <div className="text-2xl font-bold">{metric.value.toLocaleString()}</div>
+          <div
+            key={metric.label}
+            className="bg-card border rounded-xl p-4 shadow-sm"
+          >
+            <div className="text-2xl font-bold">
+              {metric.value.toLocaleString()}
+            </div>
             <div className="text-sm text-muted-foreground">{metric.label}</div>
           </div>
         ))}
       </div>
 
       {/* List sections*/}
-      <div className={`max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 transition-opacity duration-200 ${isLoading ? "opacity-50" : ""}`}>
-
+      <div
+        className={`max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 transition-opacity duration-200 ${isLoading ? "opacity-50" : ""}`}
+      >
         <div className="bg-card border rounded-xl p-4">
           <h2 className="font-semibold mb-4">
             Customers
-            <span className="ml-2 text-xs font-normal text-muted-foreground">(up to {userLimit})</span>
+            <span className="ml-2 text-xs font-normal text-muted-foreground">
+              (up to {userLimit})
+            </span>
           </h2>
           <div className="space-y-3 max-h-80 overflow-y-auto">
             {overview?.customers.map((user) => (
-              <div key={user.id} className="border rounded-lg p-3 text-sm shadow-sm">
+              <div
+                key={user.id}
+                className="border rounded-lg p-3 text-sm shadow-sm"
+              >
                 <div className="font-medium">{user.name}</div>
                 <div className="text-muted-foreground">{user.email}</div>
-                <div className="text-xs text-muted-foreground mt-1">ID: {user.id}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  ID: {user.id}
+                </div>
               </div>
             ))}
           </div>
@@ -318,14 +369,21 @@ export default function AdminOverview() {
         <div className="bg-card border rounded-xl p-4">
           <h2 className="font-semibold mb-4">
             Operators
-            <span className="ml-2 text-xs font-normal text-muted-foreground">(up to {userLimit})</span>
+            <span className="ml-2 text-xs font-normal text-muted-foreground">
+              (up to {userLimit})
+            </span>
           </h2>
           <div className="space-y-3 max-h-80 overflow-y-auto">
             {overview?.operators.map((user) => (
-              <div key={user.id} className="border rounded-lg p-3 text-sm shadow-sm">
+              <div
+                key={user.id}
+                className="border rounded-lg p-3 text-sm shadow-sm"
+              >
                 <div className="font-medium">{user.name}</div>
                 <div className="text-muted-foreground">{user.email}</div>
-                <div className="text-xs text-muted-foreground mt-1">ID: {user.id}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  ID: {user.id}
+                </div>
               </div>
             ))}
           </div>
@@ -342,10 +400,18 @@ export default function AdminOverview() {
             {overview?.active_rentals_list.map((rental, i) => (
               <div key={i} className="border rounded-lg p-3 text-sm shadow-sm">
                 <div className="font-medium">Rental</div>
-                <div className="text-muted-foreground">User ID: {rental.user.id}</div>
-                <div className="text-muted-foreground">Vehicle ID: {rental.vehicle.id}</div>
-                <div className="text-xs mt-1">Start: {new Date(rental.start_date_time).toLocaleString()}</div>
-                <div className="text-xs">End: {new Date(rental.end_date_time).toLocaleString()}</div>
+                <div className="text-muted-foreground">
+                  User ID: {rental.user.id}
+                </div>
+                <div className="text-muted-foreground">
+                  Vehicle ID: {rental.vehicle.id}
+                </div>
+                <div className="text-xs mt-1">
+                  Start: {new Date(rental.start_date_time).toLocaleString()}
+                </div>
+                <div className="text-xs">
+                  End: {new Date(rental.end_date_time).toLocaleString()}
+                </div>
               </div>
             ))}
           </div>
@@ -362,10 +428,18 @@ export default function AdminOverview() {
             {overview?.completed_trips_list.map((trip, i) => (
               <div key={i} className="border rounded-lg p-3 text-sm shadow-sm">
                 <div className="font-medium">Trip</div>
-                <div className="text-muted-foreground">User ID: {trip.user.id}</div>
-                <div className="text-muted-foreground">Vehicle ID: {trip.vehicle.id}</div>
-                <div className="text-xs mt-1">Start: {new Date(trip.start_time).toLocaleString()}</div>
-                <div className="text-xs">End: {new Date(trip.end_time).toLocaleString()}</div>
+                <div className="text-muted-foreground">
+                  User ID: {trip.user.id}
+                </div>
+                <div className="text-muted-foreground">
+                  Vehicle ID: {trip.vehicle.id}
+                </div>
+                <div className="text-xs mt-1">
+                  Start: {new Date(trip.start_time).toLocaleString()}
+                </div>
+                <div className="text-xs">
+                  End: {new Date(trip.end_time).toLocaleString()}
+                </div>
               </div>
             ))}
           </div>
@@ -373,10 +447,18 @@ export default function AdminOverview() {
       </div>
 
       {/* Donut charts */}
-      <div className={`max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 transition-opacity duration-200 ${isLoading ? "opacity-50" : ""}`}>
-        <DonutChart title="Customers vs Operators"            slices={userRoleSlices}          />
-        <DonutChart title="Active Rentals by Vehicle Type"    slices={activeVehicleSlices}     />
-        <DonutChart title="Completed Trips by Vehicle Type"   slices={completedVehicleSlices}  />
+      <div
+        className={`max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 transition-opacity duration-200 ${isLoading ? "opacity-50" : ""}`}
+      >
+        <DonutChart title="Customers vs Operators" slices={userRoleSlices} />
+        <DonutChart
+          title="Active Rentals by Vehicle Type"
+          slices={activeVehicleSlices}
+        />
+        <DonutChart
+          title="Completed Trips by Vehicle Type"
+          slices={completedVehicleSlices}
+        />
       </div>
     </div>
   );

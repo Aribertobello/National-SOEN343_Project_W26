@@ -156,7 +156,7 @@ def system_analytics(request):
 class AdminOverviewView(APIView):
     def get(self, request):
 
-        """
+        
         if not request.user.is_authenticated:
             return Response(
                 {"detail": "Authentication required."},
@@ -167,7 +167,6 @@ class AdminOverviewView(APIView):
                 {"detail": "You do not have permission to access this resource."},
                 status=status.HTTP_403_FORBIDDEN
             )
-        """
  
         now = timezone.now()
         try:
@@ -236,7 +235,6 @@ class AdminOverviewView(APIView):
         })
 
 class AdminCitiesView(APIView):
-    """
     def _check_auth(self, request):
         if not request.user.is_authenticated:
             return Response({"detail": "Authentication required."},
@@ -251,7 +249,6 @@ class AdminCitiesView(APIView):
         if err:
             return err
         return self._build_response()
-    """
  
     def get(self, request):
         return self._build_response()
