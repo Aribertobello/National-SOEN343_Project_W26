@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from datetime import timedelta
+from core.models import City
 
 User = get_user_model()
  
@@ -101,3 +102,87 @@ class AdminOverviewView(APIView):
             "active_rentals_list":  rentals_data,
             "completed_trips_list": trips_data,
         })
+
+class AdminCitiesView(APIView):
+    """
+    def _check_auth(self, request):
+        if not request.user.is_authenticated:
+            return Response({"detail": "Authentication required."},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        if request.user.role != User.Role.ADMIN:
+            return Response({"detail": "Forbidden."},
+                            status=status.HTTP_403_FORBIDDEN)
+        return None
+ 
+    def get(self, request):
+        err = self._check_auth(request)
+        if err:
+            return err
+        return self._build_response()
+    """
+ 
+    def get(self, request):
+        return self._build_response()
+ 
+ 
+    @staticmethod
+    def _bbox(city):
+        """Return (min_x, max_x, min_y, max_y) for a City instance."""
+        xs = [city.top_left_x,  city.top_right_x,
+              city.bottom_left_x, city.bottom_right_x]
+        ys = [city.top_left_y,  city.top_right_y,
+              city.bottom_left_y, city.bottom_right_y]
+        return min(xs), max(xs), min(ys), max(ys)
+ 
+    def _build_response(self):
+        cities = City.objects.all().order_by("name")
+        result = []
+ 
+        for city in cities:
+            min_x, max_x, min_y, max_y = self._bbox(city)
+ 
+            spots_qs = ParkingSpot.objects.filter(
+                location__x__gte=min_x, location__x__lte=max_x,
+                location__y__gte=min_y, location__y__lte=max_y,
+            )
+            total_spots = spots_qs.count()
+ 
+
+            reserved_spots = (
+                ParkingReservation.objects
+                .filter(parking_spot__in=spots_qs)
+                .values("parking_spot")
+                .distinct()
+                .count()
+            )
+ 
+            utilization_pct = (
+                round(reserved_spots / total_spots * 100, 1)
+                if total_spots > 0 else 0.0
+            )
+ 
+
+            rentals_count = Rental.objects.filter(
+                vehicle__location__x__gte=min_x,
+                vehicle__location__x__lte=max_x,
+                vehicle__location__y__gte=min_y,
+                vehicle__location__y__lte=max_y,
+            ).count()
+
+            trips_count = Trip.objects.filter(
+                start_location__x__gte=min_x,
+                start_location__x__lte=max_x,
+                start_location__y__gte=min_y,
+                start_location__y__lte=max_y,
+            ).count()
+ 
+            result.append({
+                "city":                    city.name,
+                "total_parking_spots":     total_spots,
+                "reserved_parking_spots":  reserved_spots,
+                "parking_utilization_pct": utilization_pct,
+                "rentals":                 rentals_count,
+                "trips":                   trips_count,
+            })
+ 
+        return Response(result)

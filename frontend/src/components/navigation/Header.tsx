@@ -83,10 +83,15 @@ export default function Header() {
                 <NavigationMenuList>
                     <NavigationMenuItem>
                         <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
-                            <NavigationMenuContent className="flex flex-row justify-between min-w-md">
+                            <NavigationMenuContent className="flex flex-row min-w-md">
                                 <NavigationMenuLink asChild>
                                     <Link to={"/admin-overview"}>
                                     Admin Overview
+                                    </Link>
+                                </NavigationMenuLink>
+                                <NavigationMenuLink asChild>
+                                    <Link to={"/admin-cities"}>
+                                    Admin Cities
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuContent>

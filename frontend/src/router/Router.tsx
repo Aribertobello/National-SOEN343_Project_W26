@@ -11,6 +11,7 @@ import authRouter from "./AuthRouter";
 import BookingPage    from "@/pages/BookingPage";
 import MyRentalsPage  from "@/pages/MyRentalsPage";
 import AdminOverview from "@/pages/AdminOverview";
+import AdminCities from "@/pages/AdminCities";
 
 import { BikeFactory, CarFactory, EScooterFactory } from "@/utils/factories";
 
@@ -63,6 +64,9 @@ const router = createBrowserRouter([
             },
             {   path: "admin-overview",
                 element: <AdminOverview />
+            },
+            {   path: "admin-cities",
+                element: <AdminCities />
             },
             {   path: "*",
                 element: <NotFound />
