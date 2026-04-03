@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import { ApiClient } from "@/utils/ApiClient";
-import { parseUser } from "@/models/user";
 import type { User } from "@/models/user";
-import { Role } from "@/models/user";
 import type { Vehicle, VehicleType } from "@/models/vehicle";
 
 interface AdminOverview {
@@ -12,6 +10,10 @@ interface AdminOverview {
   total_operators: number;
   active_rentals: number;
   completed_trips: number;
+
+  total_cars_rental: number;
+  total_escooters_rental: number,
+  total_bikes_rental:number;
 
   customers: {
     id: number;
@@ -26,8 +28,9 @@ interface AdminOverview {
   }[];
 
   active_rentals_list: {
+    vehicle_id: number;
     vehicle: Vehicle;
-    user: User;
+    user_id: number;
     start_date_time: string;
     end_date_time: string;
   }[];
@@ -181,22 +184,7 @@ const VEHICLE_TYPE_COLORS: Record<VehicleType, string> = {
   escooter: "#f97316",
 };
 
-function countVehicleTypes(vehicles: Vehicle[]): SliceData[] {
-  const counts: Record<VehicleType, number> = { car: 0, bike: 0, escooter: 0 };
-  vehicles.forEach((v) => {
-    if (v.type in counts) counts[v.type]++;
-  });
-  return (Object.entries(counts) as [VehicleType, number][]).map(
-    ([type, value]) => ({
-      label: type.charAt(0).toUpperCase() + type.slice(1),
-      value,
-      color: VEHICLE_TYPE_COLORS[type],
-    }),
-  );
-}
-
 export default function AdminOverview() {
-  const navigate = useNavigate();
   const api = ApiClient.getInstance();
 
   const [overview, setOverview] = useState<AdminOverview | null>(null);
@@ -262,12 +250,24 @@ export default function AdminOverview() {
         },
       ]
     : [];
-
-  const activeVehicleSlices = overview
-    ? countVehicleTypes(overview.active_rentals_list.map((r) => r.vehicle))
-    : [];
-  const completedVehicleSlices = overview
-    ? countVehicleTypes(overview.completed_trips_list.map((t) => t.vehicle))
+  
+  const rentalVehicleRoleSlices: SliceData[] = overview
+    ? [
+        {
+          label: "EScooter",
+          value: overview.total_escooters_rental,
+          color: VEHICLE_TYPE_COLORS.escooter,
+        },
+        {
+          label: "Bike",
+          value: overview.total_bikes_rental,
+          color: VEHICLE_TYPE_COLORS.bike,
+        },        {
+          label: "Car",
+          value: overview.total_cars_rental,
+          color: VEHICLE_TYPE_COLORS.car,
+        },
+      ]
     : [];
 
   const isLoading = loadState === "loading";
@@ -401,10 +401,10 @@ export default function AdminOverview() {
               <div key={i} className="border rounded-lg p-3 text-sm shadow-sm">
                 <div className="font-medium">Rental</div>
                 <div className="text-muted-foreground">
-                  User ID: {rental.user.id}
+                  User ID: {rental.user_id}
                 </div>
                 <div className="text-muted-foreground">
-                  Vehicle ID: {rental.vehicle.id}
+                  Vehicle ID: {rental.vehicle_id}
                 </div>
                 <div className="text-xs mt-1">
                   Start: {new Date(rental.start_date_time).toLocaleString()}
@@ -448,16 +448,12 @@ export default function AdminOverview() {
 
       {/* Donut charts */}
       <div
-        className={`max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 transition-opacity duration-200 ${isLoading ? "opacity-50" : ""}`}
+        className={`max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 transition-opacity duration-200 ${isLoading ? "opacity-50" : ""}`}
       >
         <DonutChart title="Customers vs Operators" slices={userRoleSlices} />
         <DonutChart
           title="Active Rentals by Vehicle Type"
-          slices={activeVehicleSlices}
-        />
-        <DonutChart
-          title="Completed Trips by Vehicle Type"
-          slices={completedVehicleSlices}
+          slices={rentalVehicleRoleSlices}
         />
       </div>
     </div>

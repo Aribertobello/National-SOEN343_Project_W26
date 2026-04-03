@@ -22,7 +22,6 @@ class RentalSerializer(serializers.ModelSerializer):
     vehicle_id     = serializers.PrimaryKeyRelatedField(
         queryset=RentableVehicle.objects.all(),
         source='vehicle',
-        write_only=True
     )
     user_id        = serializers.IntegerField(source='user.id', read_only=True)
     payment_status = serializers.SerializerMethodField()

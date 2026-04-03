@@ -234,15 +234,15 @@ function ParkingUtilization({ data }: ParkingUtilizationProps) {
       <div className="mt-5 pt-4 border-t flex flex-wrap gap-4 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: COLOR_TRIPS }} />
-          &lt;60% — Low
+          &lt;60% Low
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: COLOR_PARKING }} />
-          60–84% — Moderate
+          60–84% Moderate
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#ef4444" }} />
-          ≥85% — High
+          ≥85% High
         </span>
       </div>
     </div>
@@ -340,7 +340,7 @@ export default function AdminCities() {
       <div>
         <h1 className="text-3xl font-bold">City Analytics</h1>
         <p className="text-muted-foreground">
-          Parking utilization, rentals and trips — broken down by city
+          Parking utilization, Rentals and Trips
         </p>
       </div>
 

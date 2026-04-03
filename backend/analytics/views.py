@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from datetime import timedelta
 from rentals.models import RentableVehicle, Rental
+from parkings.models import ParkingSpot, ParkingReservation
 
 User = get_user_model()
  
@@ -155,8 +156,6 @@ def system_analytics(request):
  
 class AdminOverviewView(APIView):
     def get(self, request):
-
-        
         if not request.user.is_authenticated:
             return Response(
                 {"detail": "Authentication required."},
@@ -167,7 +166,7 @@ class AdminOverviewView(APIView):
                 {"detail": "You do not have permission to access this resource."},
                 status=status.HTTP_403_FORBIDDEN
             )
- 
+        
         now = timezone.now()
         try:
             user_limit = int(request.query_params.get("user_limit", DEFAULT_USER_LIMIT))
@@ -175,18 +174,16 @@ class AdminOverviewView(APIView):
                 user_limit = DEFAULT_USER_LIMIT
         except (ValueError, TypeError):
             user_limit = DEFAULT_USER_LIMIT
- 
+
         time_range = request.query_params.get("time_range", "all")
         if time_range not in ("week", "month", "all"):
             time_range = "all"
- 
- 
+        
         if time_range in TIME_RANGE_DELTAS:
             since = now - TIME_RANGE_DELTAS[time_range]
         else:
             since = None
- 
- 
+
         customers = (
             User.objects.filter(role=User.Role.CUSTOMER)
             .order_by("-id")[:user_limit]
@@ -195,38 +192,46 @@ class AdminOverviewView(APIView):
             User.objects.filter(role=User.Role.OPERATOR)
             .order_by("-id")[:user_limit]
         )
- 
- 
+
         active_rentals_qs = Rental.objects.filter(end_date_time__gte=now)
         if since is not None:
             active_rentals_qs = active_rentals_qs.filter(start_date_time__gte=since)
         active_rentals_qs = active_rentals_qs.order_by("-start_date_time")
- 
+
         trips_qs = Trip.objects.all()
         if since is not None:
             trips_qs = trips_qs.filter(start_time__gte=since)
         trips_qs = trips_qs.order_by("-start_time")
- 
+
         total_customers  = User.objects.filter(role=User.Role.CUSTOMER).count()
         total_operators  = User.objects.filter(role=User.Role.OPERATOR).count()
         active_rentals   = active_rentals_qs.count()
         completed_trips  = trips_qs.count()
- 
- 
+
+        active_vehicle_ids = active_rentals_qs.values_list("vehicle_id", flat=True).distinct()
+
+        total_cars_rental = RentableVehicle.objects.filter(type=RentableVehicle.VehicleType.CAR, id__in=active_vehicle_ids).count()
+        total_escooters_rental = RentableVehicle.objects.filter(type=RentableVehicle.VehicleType.ESCOOTER, id__in=active_vehicle_ids).count()
+        total_bikes_rental = RentableVehicle.objects.filter(type=RentableVehicle.VehicleType.BIKE, id__in=active_vehicle_ids).count()
+
         customers_data = list(customers.values("id", "email", "name"))
         operators_data = list(operators.values("id", "email", "name"))
         rentals_data   = list(
-            active_rentals_qs.values("vehicle", "user", "start_date_time", "end_date_time")
+            active_rentals_qs.values("vehicle_id", "vehicle", "user_id", "start_date_time", "end_date_time")
         )
         trips_data     = list(
             trips_qs.values("vehicle", "user", "start_time", "end_time")
         )
- 
+
         return Response({
             "total_customers":      total_customers,
             "total_operators":      total_operators,
             "active_rentals":       active_rentals,
             "completed_trips":      completed_trips,
+            
+            "total_cars_rental":           total_cars_rental,
+            "total_escooters_rental":      total_escooters_rental,
+            "total_bikes_rental":          total_bikes_rental,
             
             "customers":            customers_data,
             "operators":            operators_data,
@@ -248,9 +253,6 @@ class AdminCitiesView(APIView):
         err = self._check_auth(request)
         if err:
             return err
-        return self._build_response()
- 
-    def get(self, request):
         return self._build_response()
  
  
@@ -314,4 +316,5 @@ class AdminCitiesView(APIView):
                 "trips":                   trips_count,
             })
  
+
         return Response(result)

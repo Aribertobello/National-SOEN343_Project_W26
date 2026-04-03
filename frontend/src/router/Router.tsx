@@ -96,10 +96,13 @@ const router = createBrowserRouter([
             },
             {   path: "admin-overview",
                 element:  <ProtectedRoute role={Role.ADMIN}>
-                <AdminOverview /></ProtectedRoute>
+                            <AdminOverview />
+                        </ProtectedRoute>
             },
             {   path: "admin-cities",
-                element: <ProtectedRoute role={Role.ADMIN}><AdminCities /></ProtectedRoute>
+                element: <ProtectedRoute role={Role.ADMIN}>
+                            <AdminCities />
+                        </ProtectedRoute>
             },
             {   path: "*",
                 element: <NotFound />

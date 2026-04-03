@@ -54,9 +54,22 @@ export default function Header() {
               </NavigationMenuItem>
             ) : user?.role === Role.OPERATOR ? (
               <NavigationMenuItem>
-                <Link className="hover:bg-accent rounded-lg p-2" to={"/op"}>
-                  Rental Dashboard
-                </Link>
+                <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
+                <NavigationMenuContent className="flex flex-col min-w-[200px] p-2 gap-1">
+                  <NavigationMenuLink asChild>
+                    <Link
+                      className="hover:bg-accent rounded-lg p-2 text-sm"
+                      to="/analytics"
+                    >
+                      My Fleet Analytics
+                    </Link>
+                  </NavigationMenuLink>
+                  <NavigationMenuLink asChild>
+                    <Link className="hover:bg-accent rounded-lg p-2" to="/op">
+                      Rental Dashboard
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuContent>
               </NavigationMenuItem>
             ) : (
               <>
@@ -105,21 +118,7 @@ export default function Header() {
             <NavigationMenuItem>
               <Link to={"/my-rentals"}>My rentals</Link>
             </NavigationMenuItem>
-          ) : (
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
-              <NavigationMenuContent className="flex flex-col min-w-[200px] p-2 gap-1">
-                <NavigationMenuLink asChild>
-                  <Link
-                    className="hover:bg-accent rounded-lg p-2 text-sm"
-                    to={"/analytics"}
-                  >
-                    My Fleet Analytics
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          )}
+          ) : null}
           {user ? (
             <div className="flex justify-between">
               <Button
