@@ -7,4 +7,5 @@ urlpatterns = [
     path("cities/", AdminCitiesView.as_view(), name="cities"),
     path("", views.analytics_dashboard, name="analytics-dashboard"),
     path("system/", views.system_analytics, name="analytics-system"),
+    path("trips/start/", views.start_trip, name="trip-start"),
 ]
