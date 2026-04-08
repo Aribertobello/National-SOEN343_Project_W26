@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { MapPin, CircleCheck, CircleX, Wrench } from "lucide-react";
 import type { Vehicle } from "@/models/vehicle";
 import type { VehicleConfig } from "@/utils/factories/VehicleFactory";
+import { buildGoogleMapsSearchUrl } from "@/utils/googleMaps";
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -33,6 +34,7 @@ const statusMeta: Record<
 export default function VehicleCard({ vehicle, config }: VehicleCardProps) {
   const status = statusMeta[vehicle.status];
   const isAvailable = vehicle.status === "available";
+  const mapsUrl = buildGoogleMapsSearchUrl(vehicle.location);
 
   return (
     <div className="group relative bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col">
@@ -71,7 +73,14 @@ export default function VehicleCard({ vehicle, config }: VehicleCardProps) {
         {/* Location */}
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <MapPin className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">{vehicle.location}</span>
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="truncate hover:underline"
+          >
+            {vehicle.location}
+          </a>
         </div>
         {/* Specs grid — rendered generically from factory config */}
         <div className="grid grid-cols-2 gap-x-4 gap-y-2">

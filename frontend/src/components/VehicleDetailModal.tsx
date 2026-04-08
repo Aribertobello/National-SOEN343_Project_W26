@@ -11,6 +11,7 @@ import { MapPin } from "lucide-react";
 import { RentalVehicleStatus, type RentalVehicle } from "@/models/vehicle";
 import type { Rental } from "@/models/rental";
 import { ApiClient } from "@/utils/ApiClient";
+import { buildGoogleMapsSearchUrl } from "@/utils/googleMaps";
 
 import bikeIcon from "@/assets/bicycle.svg";
 import carIcon from "@/assets/carshare.svg";
@@ -87,6 +88,7 @@ export default function VehicleDetailModal({
   if (!vehicle) return null;
 
   const rental: Rental | null = vehicle.rental ?? null;
+  const mapsUrl = buildGoogleMapsSearchUrl(vehicle.location.address);
   const payment = rental?.payment ?? null;
 
   const startTime = rental?.start_date_time
@@ -170,7 +172,14 @@ export default function VehicleDetailModal({
             </div>
             <div className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground">
               <MapPin className="w-3.5 h-3.5 shrink-0" />
-              {vehicle.location.address}
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:underline"
+              >
+                {vehicle.location.address}
+              </a>
             </div>
           </section>
 
