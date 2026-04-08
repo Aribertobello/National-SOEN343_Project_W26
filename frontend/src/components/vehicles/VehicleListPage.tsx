@@ -16,8 +16,8 @@ interface VehicleListPageProps {
 const STATUS_FILTERS: { label: string; value: VehicleStatus | "all" }[] = [
   { label: "All",         value: "all" },
   { label: "Available",   value: "available" },
-  { label: "In Use",      value: "rented" },
-  { label: "Out of Service", value: "out-of-service" },
+  { label: "In Use",      value: "rented-out" },
+  { label: "Maintenance", value: "maintenance" },
 ];
 
 export default function VehicleListPage({ config }: VehicleListPageProps) {

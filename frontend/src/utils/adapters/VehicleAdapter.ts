@@ -33,13 +33,23 @@ export interface BackendVehicle {
 }
 
 export class VehicleAdapter {
+  private static normalizeStatus(rawStatus: string): VehicleStatus {
+    if (rawStatus === "maintenence") {
+      return "maintenance";
+    }
+    if (rawStatus === "available" || rawStatus === "rented-out") {
+      return rawStatus;
+    }
+    return "maintenance";
+  }
+
   static adapt(raw: BackendVehicle): Vehicle {
     const rate = parseFloat(raw.rate);
     return {
       id: raw.id,
       location_id: raw.location?.id,
       type: raw.type as VehicleType,
-      status: raw.status as VehicleStatus,
+      status: VehicleAdapter.normalizeStatus(raw.status),
       price_per_unit: rate,
       hourly_rate: rate,
       location: raw.location?.address ?? "Unknown",

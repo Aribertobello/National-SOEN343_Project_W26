@@ -32,7 +32,7 @@ export interface Vehicle {
 export const RentalVehicleStatus = {
   AVAILABLE: "available",
   RENTEDOUT: "rented-out",
-  MAINTENANCE: "maintenence",
+  MAINTENANCE: "maintenance",
 } as const;
 
 type RentalVehicleStatusType =

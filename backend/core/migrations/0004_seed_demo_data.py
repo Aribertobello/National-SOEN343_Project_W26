@@ -113,7 +113,7 @@ def seed_demo_data(apps, schema_editor):
         ("bike", Decimal("4.25"), Decimal("5.75"), 1, "Concordia Bike Hub", "rented-out"),
         ("escooter", Decimal("5.50"), Decimal("7.00"), 1, "McGill Micromobility", "available"),
         ("escooter", Decimal("5.25"), Decimal("6.75"), 1, "McGill Micromobility", "available"),
-        ("escooter", Decimal("5.75"), Decimal("7.25"), 1, "McGill Micromobility", "maintenence"),
+        ("escooter", Decimal("5.75"), Decimal("7.25"), 1, "McGill Micromobility", "maintenance"),
     ]
 
     vehicles = []
