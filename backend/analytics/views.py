@@ -1,29 +1,27 @@
-from django.shortcuts import render
+from datetime import timedelta
 
-# Create your views here.
 from django.contrib.auth import get_user_model
-from analytics.models import Trip
-from rest_framework import status
-from rest_framework.views import APIView
-from core.models import City
-from django.db.models import Count, Q, F
+from django.db.models import Count, F
 from django.db.models.functions import TruncDate
 from django.utils import timezone
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from datetime import timedelta
+from rest_framework.views import APIView
+
+from analytics.models import Trip
+from core.models import City, Location
+from parkings.models import ParkingReservation, ParkingSpot
 from rentals.models import RentableVehicle, Rental
-from parkings.models import ParkingSpot, ParkingReservation
 
 User = get_user_model()
- 
- 
+
 ALLOWED_USER_LIMITS = {10, 25, 50, 100}
-DEFAULT_USER_LIMIT  = 50
- 
+DEFAULT_USER_LIMIT = 50
+
 TIME_RANGE_DELTAS = {
-    "week":  timedelta(weeks=1),
+    "week": timedelta(weeks=1),
     "month": timedelta(days=30),
 }
 
@@ -44,25 +42,20 @@ def analytics_dashboard(request):
 
     operator_rentals = Rental.objects.filter(vehicle__in=operator_vehicles)
 
-    # 1. Active rentals right now
     active_rentals = operator_rentals.filter(status="active").count()
 
-    # 2. Available vehicles
     available_vehicles = operator_vehicles.filter(
         status=RentableVehicle.vehicleStatus.AVAILABLE
     ).count()
 
-    # 3. Trips in look-back window
     trips_in_window = operator_rentals.filter(
         created_at__gte=since, status__in=["completed", "active"]
     ).count()
 
-    # 4. Total trips all time
     total_trips = operator_rentals.filter(
         status__in=["completed", "active"]
     ).count()
 
-    # 5. Most used vehicle type
     most_used_type = (
         operator_rentals.filter(status__in=["completed", "active"])
         .values("vehicle__type")
@@ -71,7 +64,6 @@ def analytics_dashboard(request):
         .first()
     )
 
-    # 6. Usage per city
     usage_per_city = list(
         operator_rentals.filter(status__in=["completed", "active"])
         .values(city=F("vehicle__location__city__name"))
@@ -79,7 +71,6 @@ def analytics_dashboard(request):
         .order_by("-trips")
     )
 
-    # 7. Daily trip aggregates
     daily_trips = list(
         operator_rentals.filter(created_at__gte=since)
         .annotate(day=TruncDate("created_at"))
@@ -88,7 +79,6 @@ def analytics_dashboard(request):
         .order_by("day")
     )
 
-    # 8. Vehicle type breakdown
     vehicle_type_breakdown = list(
         operator_vehicles.values(vehicle_type=F("type"))
         .annotate(count=Count("id"))
@@ -152,21 +142,21 @@ def system_analytics(request):
             "total_trips_last_30_days": total_trips_30d,
         }
     )
- 
- 
+
+
 class AdminOverviewView(APIView):
     def get(self, request):
         if not request.user.is_authenticated:
             return Response(
                 {"detail": "Authentication required."},
-                status=status.HTTP_401_UNAUTHORIZED
+                status=status.HTTP_401_UNAUTHORIZED,
             )
         if request.user.role != User.Role.ADMIN:
             return Response(
                 {"detail": "You do not have permission to access this resource."},
-                status=status.HTTP_403_FORBIDDEN
+                status=status.HTTP_403_FORBIDDEN,
             )
-        
+
         now = timezone.now()
         try:
             user_limit = int(request.query_params.get("user_limit", DEFAULT_USER_LIMIT))
@@ -178,20 +168,11 @@ class AdminOverviewView(APIView):
         time_range = request.query_params.get("time_range", "all")
         if time_range not in ("week", "month", "all"):
             time_range = "all"
-        
-        if time_range in TIME_RANGE_DELTAS:
-            since = now - TIME_RANGE_DELTAS[time_range]
-        else:
-            since = None
 
-        customers = (
-            User.objects.filter(role=User.Role.CUSTOMER)
-            .order_by("-id")[:user_limit]
-        )
-        operators = (
-            User.objects.filter(role=User.Role.OPERATOR)
-            .order_by("-id")[:user_limit]
-        )
+        since = now - TIME_RANGE_DELTAS[time_range] if time_range in TIME_RANGE_DELTAS else None
+
+        customers = User.objects.filter(role=User.Role.CUSTOMER).order_by("-id")[:user_limit]
+        operators = User.objects.filter(role=User.Role.OPERATOR).order_by("-id")[:user_limit]
 
         active_rentals_qs = Rental.objects.filter(end_date_time__gte=now)
         if since is not None:
@@ -203,95 +184,90 @@ class AdminOverviewView(APIView):
             trips_qs = trips_qs.filter(start_time__gte=since)
         trips_qs = trips_qs.order_by("-start_time")
 
-        total_customers  = User.objects.filter(role=User.Role.CUSTOMER).count()
-        total_operators  = User.objects.filter(role=User.Role.OPERATOR).count()
-        active_rentals   = active_rentals_qs.count()
-        completed_trips  = trips_qs.count()
+        total_customers = User.objects.filter(role=User.Role.CUSTOMER).count()
+        total_operators = User.objects.filter(role=User.Role.OPERATOR).count()
+        active_rentals = active_rentals_qs.count()
+        completed_trips = trips_qs.count()
 
         active_vehicle_ids = active_rentals_qs.values_list("vehicle_id", flat=True).distinct()
 
-        total_cars_rental = RentableVehicle.objects.filter(type=RentableVehicle.VehicleType.CAR, id__in=active_vehicle_ids).count()
-        total_escooters_rental = RentableVehicle.objects.filter(type=RentableVehicle.VehicleType.ESCOOTER, id__in=active_vehicle_ids).count()
-        total_bikes_rental = RentableVehicle.objects.filter(type=RentableVehicle.VehicleType.BIKE, id__in=active_vehicle_ids).count()
+        total_cars_rental = RentableVehicle.objects.filter(
+            type=RentableVehicle.VehicleType.CAR, id__in=active_vehicle_ids
+        ).count()
+        total_escooters_rental = RentableVehicle.objects.filter(
+            type=RentableVehicle.VehicleType.ESCOOTER, id__in=active_vehicle_ids
+        ).count()
+        total_bikes_rental = RentableVehicle.objects.filter(
+            type=RentableVehicle.VehicleType.BIKE, id__in=active_vehicle_ids
+        ).count()
 
         customers_data = list(customers.values("id", "email", "name"))
         operators_data = list(operators.values("id", "email", "name"))
-        rentals_data   = list(
+        rentals_data = list(
             active_rentals_qs.values("vehicle_id", "vehicle", "user_id", "start_date_time", "end_date_time")
         )
-        trips_data     = list(
-            trips_qs.values("vehicle", "user", "start_time", "end_time")
+        trips_data = list(trips_qs.values("vehicle", "user", "start_time", "end_time"))
+
+        return Response(
+            {
+                "total_customers": total_customers,
+                "total_operators": total_operators,
+                "active_rentals": active_rentals,
+                "completed_trips": completed_trips,
+                "total_cars_rental": total_cars_rental,
+                "total_escooters_rental": total_escooters_rental,
+                "total_bikes_rental": total_bikes_rental,
+                "customers": customers_data,
+                "operators": operators_data,
+                "active_rentals_list": rentals_data,
+                "completed_trips_list": trips_data,
+            }
         )
 
-        return Response({
-            "total_customers":      total_customers,
-            "total_operators":      total_operators,
-            "active_rentals":       active_rentals,
-            "completed_trips":      completed_trips,
-            
-            "total_cars_rental":           total_cars_rental,
-            "total_escooters_rental":      total_escooters_rental,
-            "total_bikes_rental":          total_bikes_rental,
-            
-            "customers":            customers_data,
-            "operators":            operators_data,
-            "active_rentals_list":  rentals_data,
-            "completed_trips_list": trips_data,
-        })
 
 class AdminCitiesView(APIView):
     def _check_auth(self, request):
         if not request.user.is_authenticated:
-            return Response({"detail": "Authentication required."},
-                            status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"detail": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
         if request.user.role != User.Role.ADMIN:
-            return Response({"detail": "Forbidden."},
-                            status=status.HTTP_403_FORBIDDEN)
+            return Response({"detail": "Forbidden."}, status=status.HTTP_403_FORBIDDEN)
         return None
- 
+
     def get(self, request):
         err = self._check_auth(request)
         if err:
             return err
         return self._build_response()
- 
- 
+
     @staticmethod
     def _bbox(city):
-        """Return (min_x, max_x, min_y, max_y) for a City instance."""
-        xs = [city.top_left_x,  city.top_right_x,
-              city.bottom_left_x, city.bottom_right_x]
-        ys = [city.top_left_y,  city.top_right_y,
-              city.bottom_left_y, city.bottom_right_y]
+        xs = [city.top_left_x, city.top_right_x, city.bottom_left_x, city.bottom_right_x]
+        ys = [city.top_left_y, city.top_right_y, city.bottom_left_y, city.bottom_right_y]
         return min(xs), max(xs), min(ys), max(ys)
- 
+
     def _build_response(self):
         cities = City.objects.all().order_by("name")
         result = []
- 
+
         for city in cities:
             min_x, max_x, min_y, max_y = self._bbox(city)
- 
+
             spots_qs = ParkingSpot.objects.filter(
-                location__x__gte=min_x, location__x__lte=max_x,
-                location__y__gte=min_y, location__y__lte=max_y,
+                location__x__gte=min_x,
+                location__x__lte=max_x,
+                location__y__gte=min_y,
+                location__y__lte=max_y,
             )
             total_spots = spots_qs.count()
- 
 
             reserved_spots = (
-                ParkingReservation.objects
-                .filter(parking_spot__in=spots_qs)
+                ParkingReservation.objects.filter(parking_spot__in=spots_qs)
                 .values("parking_spot")
                 .distinct()
                 .count()
             )
- 
-            utilization_pct = (
-                round(reserved_spots / total_spots * 100, 1)
-                if total_spots > 0 else 0.0
-            )
- 
+
+            utilization_pct = round(reserved_spots / total_spots * 100, 1) if total_spots > 0 else 0.0
 
             rentals_count = Rental.objects.filter(
                 vehicle__location__x__gte=min_x,
@@ -306,15 +282,81 @@ class AdminCitiesView(APIView):
                 start_location__y__gte=min_y,
                 start_location__y__lte=max_y,
             ).count()
- 
-            result.append({
-                "city":                    city.name,
-                "total_parking_spots":     total_spots,
-                "reserved_parking_spots":  reserved_spots,
-                "parking_utilization_pct": utilization_pct,
-                "rentals":                 rentals_count,
-                "trips":                   trips_count,
-            })
- 
+
+            result.append(
+                {
+                    "city": city.name,
+                    "total_parking_spots": total_spots,
+                    "reserved_parking_spots": reserved_spots,
+                    "parking_utilization_pct": utilization_pct,
+                    "rentals": rentals_count,
+                    "trips": trips_count,
+                }
+            )
 
         return Response(result)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def start_trip(request):
+    vehicle_id = request.data.get("vehicle_id")
+    start_location_id = request.data.get("start_location_id")
+    end_location_id = request.data.get("end_location_id")
+
+    if not vehicle_id or not start_location_id or not end_location_id:
+        return Response(
+            {"error": "vehicle_id, start_location_id and end_location_id are required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        vehicle = RentableVehicle.objects.get(pk=vehicle_id)
+    except RentableVehicle.DoesNotExist:
+        return Response({"error": "Vehicle not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if vehicle.status != RentableVehicle.vehicleStatus.AVAILABLE:
+        return Response(
+            {"error": "Vehicle is not available."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        start_location = Location.objects.get(pk=start_location_id)
+        end_location = Location.objects.get(pk=end_location_id)
+    except Location.DoesNotExist:
+        return Response({"error": "Location not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if start_location.id == end_location.id:
+        return Response(
+            {"error": "Start and destination locations must be different."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if vehicle.location_id and vehicle.location_id != start_location.id:
+        return Response(
+            {"error": "Vehicle is not at the selected pickup location."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    now = timezone.now()
+    trip = Trip.objects.create(
+        vehicle=vehicle,
+        start_location=start_location,
+        end_location=end_location,
+        user=request.user,
+        start_time=now,
+        end_time=now,
+    )
+
+    return Response(
+        {
+            "id": trip.id,
+            "vehicle_id": vehicle.id,
+            "start_location_id": start_location.id,
+            "end_location_id": end_location.id,
+            "start_time": trip.start_time,
+            "message": "Trip created.",
+        },
+        status=status.HTTP_201_CREATED,
+    )

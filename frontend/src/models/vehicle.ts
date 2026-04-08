@@ -1,4 +1,4 @@
-import {type Rental } from "./rental";
+import { type Rental } from "./rental";
 import type { Location } from "@/models/location";
 import type { RentalStation } from "./RentalStation";
 
@@ -6,13 +6,14 @@ export type VehicleType = "car" | "bike" | "escooter";
 export type VehicleStatus = "available" | "rented-out" | "maintenance";
 export interface Vehicle {
   id: number;
+  location_id?: number;
   type: VehicleType;
   status: VehicleStatus;
   location: string;
   latitude: number;
   longitude: number;
   price_per_unit: number;
-  hourly_rate : number;
+  hourly_rate: number;
 
   // Car
   seats?: number;
@@ -28,36 +29,23 @@ export interface Vehicle {
   max_speed_kmh?: number;
 }
 
-export const RentalVehicleStatus =  {
-    AVAILABLE: "available",
-    RENTEDOUT: "rented-out",
-    MAINTENANCE: "maintenence"
+export const RentalVehicleStatus = {
+  AVAILABLE: "available",
+  RENTEDOUT: "rented-out",
+  MAINTENANCE: "maintenance",
 } as const;
 
-type RentalVehicleStatusType = typeof RentalVehicleStatus[keyof typeof RentalVehicleStatus];
+type RentalVehicleStatusType =
+  (typeof RentalVehicleStatus)[keyof typeof RentalVehicleStatus];
 
 export interface RentalVehicle {
   id: number;
   type: VehicleType;
-  status: RentalVehicleStatusType
-  location: Location
-  station: RentalStation
-  rate : number;
+  status: RentalVehicleStatusType;
+  location: Location;
+  station: RentalStation;
+  rate: number;
   overtime_rate: number;
   rental: Rental;
   capacity: number;
 }
-
-/*function isVehicle(data: any): boolean{
-
-    if(typeof data !== "object" || data === null) 
-        return false;
-
-    return  "id" in data && "role" in data
-}
-
-export function parseVehicle(data: any): User{
-    if(!isValidUser(data))
-        throw(new Error(`data cannot be parsed to User: ${data}`))
-    return data as User;
-}*/

@@ -4,6 +4,7 @@ import type { Rental } from '@/models/rental';
 import { returnVehicle } from '@/services/rentalService';
 import { RentalStore } from '@/stores/RentalStore';
 import { PricingContext, getPricingStrategy } from '@/services/pricing/PricingStrategy';
+import { buildGoogleMapsSearchUrl } from '@/utils/googleMaps';
 
 // Custom hook — Observer pattern
 // Subscribes to RentalStore and re-renders when any rental changes.
@@ -66,6 +67,7 @@ function ActiveRentalCard({
     durationHours,
     rental.vehicle.price_per_unit,
   );
+  const mapsUrl = buildGoogleMapsSearchUrl(rental.vehicle.location);
  
   async function handleReturn() {
     setLoading(true);
@@ -83,7 +85,14 @@ function ActiveRentalCard({
           <p className="font-bold text-lg mt-0.5 capitalize">
             {rental.vehicle.type} #{rental.vehicle.id}
           </p>
-          <p className="text-sm text-muted-foreground">{rental.vehicle.location}</p>
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-sm text-muted-foreground hover:underline"
+          >
+            {rental.vehicle.location}
+          </a>
         </div>
         <StatusBadge status="active" />
       </div>

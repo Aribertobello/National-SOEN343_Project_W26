@@ -8,6 +8,7 @@ import {
   releaseParkingReservation,
   reserveParkingSpot,
 } from "@/services/parkingService";
+import { buildGoogleMapsSearchUrl } from "@/utils/googleMaps";
 
 const REFRESH_INTERVAL_MS = 10000;
 const DURATION_OPTIONS = [30, 60, 120];
@@ -177,7 +178,16 @@ export default function ParkingPage() {
       {reservationResult && (
         <section className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
           Reservation #{reservationResult.reservation_id} confirmed for Spot #
-          {reservationResult.parking_spot_id} at {reservationResult.location}.
+          {reservationResult.parking_spot_id} at{" "}
+          <a
+            href={buildGoogleMapsSearchUrl(reservationResult.location)}
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium underline"
+          >
+            {reservationResult.location}
+          </a>
+          .
           Starts now. Duration: {reservationResult.duration_minutes}m. Expires:{" "}
           {formatDateTime(reservationResult.end_at)}. Total: $
           {reservationResult.total.toFixed(2)}
@@ -211,6 +221,7 @@ export default function ParkingPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {spots.map((spot) => {
             const estimatedTotal = (spot.rate * durationMinutes) / 60;
+            const mapsUrl = buildGoogleMapsSearchUrl(spot.location);
             const reservationExpiry = spot.reserved_until
               ? formatDateTime(spot.reserved_until)
               : null;
@@ -230,9 +241,14 @@ export default function ParkingPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h2 className="font-semibold">Spot #{spot.id}</h2>
-                      <p className="text-sm text-muted-foreground">
+                      <a
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm text-muted-foreground hover:underline"
+                      >
                         {spot.location}
-                      </p>
+                      </a>
                     </div>
                     <span
                       className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -260,7 +276,14 @@ export default function ParkingPage() {
                     </div>
                     <div className="flex justify-between gap-4 py-2.5">
                       <p className="text-muted-foreground">Address</p>
-                      <p className="text-right">{spot.location}</p>
+                      <a
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-right hover:underline"
+                      >
+                        {spot.location}
+                      </a>
                     </div>
                     {spot.is_available ? (
                       <div className="flex justify-between gap-4 py-2.5 last:pb-0">
