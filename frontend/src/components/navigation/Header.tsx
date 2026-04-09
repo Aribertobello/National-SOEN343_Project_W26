@@ -28,7 +28,7 @@ export default function Header() {
   };
 
   return (
-    <div className="flex justify-between w-full border-2 rounded-lg sticky top-0 z-10">
+    <div className="flex justify-between w-full rounded-lg sticky top-0 z-10 bg-black">
       <div className="flex justify-between gap-x-5">
         <div className="flex flex-row justify-between align-bottom">
           <Link to="/">
@@ -63,7 +63,7 @@ export default function Header() {
               </NavigationMenuItem>
             ) : user?.role === Role.OPERATOR ? (
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
+                <NavigationMenuTrigger>Tools</NavigationMenuTrigger>
                 <NavigationMenuContent className="flex flex-col min-w-[220px] p-2 gap-1">
                   <NavigationMenuLink asChild>
                     <Link

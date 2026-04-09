@@ -25,5 +25,5 @@ export default function ProtectedRoute(
     } else if (role === user?.role){
         return  children;
     } 
-    return fallbackRoute ? <Navigate to={fallbackRoute}/> : <NoAccess description={errorMessage}/>;
+    return fallbackRoute ? <Navigate to={fallbackRoute} replace/> : <NoAccess description={errorMessage}/>;
 }

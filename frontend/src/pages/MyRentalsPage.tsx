@@ -62,7 +62,7 @@ function ActiveRentalCard({
     getPricingStrategy(rental.vehicle.type, rental.vehicle.battery_level),
   );
   const durationHours =
-    (now - new Date(rental.start_time).getTime()) / 3_600_000;
+    (now - new Date(rental.start_date_time).getTime()) / 3_600_000;
   const estimatedCost = pricing.calculateCost(
     durationHours,
     rental.vehicle.price_per_unit,
@@ -98,7 +98,7 @@ function ActiveRentalCard({
       </div>
 
       <div className="grid grid-cols-3 gap-3 text-center">
-        <Stat label="Duration"   value={formatDuration(rental.start_time)} />
+        <Stat label="Duration"   value={formatDuration(rental.start_date_time)} />
         <Stat label="Rate"       value={`$${rental.vehicle.price_per_unit.toFixed(2)}/hr`} />
         <Stat label="Est. total" value={`$${estimatedCost.toFixed(2)}`} />
       </div>
@@ -135,10 +135,10 @@ function HistoryRow({ rental }: { rental: Rental }) {
           {rental.vehicle.type} #{rental.vehicle.id}
         </span>
         <span className="text-xs text-muted-foreground">
-          {new Date(rental.start_time).toLocaleDateString(undefined, {
+          {new Date(rental.start_date_time).toLocaleDateString(undefined, {
             month: 'short', day: 'numeric', year: 'numeric',
           })}
-          {rental.end_time && ` · ${formatDuration(rental.start_time, rental.end_time)}`}
+          {rental.end_date_time && ` · ${formatDuration(rental.start_date_time, rental.end_date_time)}`}
         </span>
       </div>
       <div className="flex items-center gap-3">

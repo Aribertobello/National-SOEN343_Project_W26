@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ExternalLink, Route } from "lucide-react";
 
+import { fetchCities, type City } from "@/services/cityService";
 import type { VehicleType } from "@/models/vehicle";
 import { fetchVehiclesByType } from "@/services/vehicleService";
 import { fetchLocations, type TripLocation } from "@/services/locationService";
@@ -47,14 +48,16 @@ function uniqueByCoordinates(locations: PickupPoint[]): PickupPoint[] {
   return unique;
 }
 
-function isLikelyMontrealLocation(
-  location: Pick<TripLocation, "address" | "latitude" | "longitude">,
+function isInCity(
+  location: Pick<TripLocation, "latitude" | "longitude">,
+  city: City,
 ): boolean {
-  const hasAddress = location.address.trim().length > 0;
-  const validLatitude = location.latitude >= 45.3 && location.latitude <= 45.7;
-  const validLongitude =
-    location.longitude >= -73.8 && location.longitude <= -73.4;
-  return hasAddress && validLatitude && validLongitude;
+  return (
+    location.latitude >= city.min_lat &&
+    location.latitude <= city.max_lat &&
+    location.longitude >= city.min_lng &&
+    location.longitude <= city.max_lng
+  );
 }
 
 function buildGoogleMapsDirectionsUrl(
@@ -86,6 +89,22 @@ export default function StartTripPage() {
   const [startingTrip, setStartingTrip] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [cities, setCities] = useState<City[]>([]);
+  const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
+
+  const selectedCity = useMemo(
+    () => cities.find((c) => c.id === selectedCityId) ?? null,
+    [cities, selectedCityId]
+  );
+
+  useEffect(() => {
+    fetchCities()
+      .then((data) => {
+        setCities(data);
+        if (data.length > 0) setSelectedCityId(data[0].id);
+      })
+      .catch(() => setError('Could not load cities.'));
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -142,24 +161,38 @@ export default function StartTripPage() {
 
         if (!mounted) return;
 
-        const availableVehicleLocations: PickupPoint[] = vehicles
-          .filter((vehicle) => vehicle.status === "available")
-          .map((vehicle) => ({
-            vehicleId: vehicle.id,
-            locationId: vehicle.location_id ?? 0,
-            address: vehicle.location,
-            latitude: vehicle.latitude,
-            longitude: vehicle.longitude,
-          }))
-          .filter((location) => location.locationId > 0)
-          .filter(
-            (location) =>
-              Number.isFinite(location.latitude) &&
-              Number.isFinite(location.longitude),
-          )
-          .filter(isLikelyMontrealLocation);
+        const availableVehicleLocations: PickupPoint[] = (() => {
+        const step1 = vehicles.filter((vehicle) => vehicle.status === "available");
+        console.log("step1 - available vehicles:", step1);
 
-        const validDestinations = allLocations.filter(isLikelyMontrealLocation);
+        const step2 = step1.map((vehicle) => ({
+          vehicleId: vehicle.id,
+          locationId: vehicle.location_id ?? 0,
+          address: vehicle.location,
+          latitude: vehicle.latitude,
+          longitude: vehicle.longitude,
+        }));
+        console.log("step2 - mapped to pickup points:", step2);
+
+        const step3 = step2.filter((location) => location.locationId > 0);
+        console.log("step3 - after locationId > 0 filter:", step3);
+
+        const step4 = step3.filter(
+          (location) =>
+            Number.isFinite(location.latitude) &&
+            Number.isFinite(location.longitude),
+        );
+        console.log("step4 - after finite coords filter:", step4);
+
+        const step5 = step4.filter((location) =>
+          selectedCity ? isInCity(location, selectedCity) : true,
+        );
+        console.log("step5 - after city filter (selectedCity:", selectedCity, "):", step5);
+
+        return step5;
+      })();
+
+        const validDestinations = allLocations.filter((location) => selectedCity ? isInCity(location, selectedCity) : true);
 
         const uniqueFrom = uniqueByCoordinates(availableVehicleLocations);
         setFromOptions(uniqueFrom);
@@ -198,7 +231,7 @@ export default function StartTripPage() {
     return () => {
       mounted = false;
     };
-  }, [vehicleType]);
+  }, [vehicleType, selectedCity]);
 
   const fromLocation = useMemo(() => {
     return (
@@ -335,7 +368,26 @@ export default function StartTripPage() {
       )}
 
       <section className="rounded-2xl border bg-card p-5 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols- gap-4">
+          <div className="space-y-1.5">
+            <label htmlFor="city" className="text-sm font-medium">
+              City
+            </label>
+            <select
+              id="city"
+              value={selectedCityId ?? ''}
+              onChange={(e) => setSelectedCityId(Number(e.target.value))}
+              className="w-full h-10 rounded-xl border bg-background px-3 text-sm"
+              disabled={!cities.length}
+            >
+              {!cities.length && <option value="">Loading cities...</option>}
+              {cities.map((city) => (
+                <option key={city.id} value={city.id}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="space-y-1.5">
             <label htmlFor="vehicle-type" className="text-sm font-medium">
               Vehicle type
