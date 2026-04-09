@@ -63,7 +63,7 @@ export default function Header() {
               </NavigationMenuItem>
             ) : user?.role === Role.OPERATOR ? (
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Analytics</NavigationMenuTrigger>
+                <NavigationMenuTrigger>Tools</NavigationMenuTrigger>
                 <NavigationMenuContent className="flex flex-col min-w-[220px] p-2 gap-1">
                   <NavigationMenuLink asChild>
                     <Link
