@@ -2,7 +2,7 @@ import App from "@/App";
 import NotFound from "./NotFound";
 import { createBrowserRouter } from "react-router-dom";
 import RouteError from "./RouteError";
-import Home from "@/components/Home";
+import Home from "@/pages/Home";
 import RentPage from "@/pages/RentPage";
 import RentBikePage from "@/pages/RentBikePage";
 import RentEScooterPage from "@/pages/RentEScooterPage";
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
       {
         path: "rent",
         element: (
-          <ProtectedRoute role={Role.CUSTOMER}>
+          <ProtectedRoute role={Role.CUSTOMER} fallbackRoute="/login">
             <RentPage />
           </ProtectedRoute>
         ),
@@ -50,7 +50,7 @@ const router = createBrowserRouter([
       {
         path: "rent-bike",
         element: (
-          <ProtectedRoute role={Role.CUSTOMER}>
+          <ProtectedRoute role={Role.CUSTOMER} fallbackRoute="/login">
             <RentBikePage />
           </ProtectedRoute>
         ),
@@ -58,7 +58,7 @@ const router = createBrowserRouter([
       {
         path: "rent-escooter",
         element: (
-          <ProtectedRoute role={Role.CUSTOMER}>
+          <ProtectedRoute role={Role.CUSTOMER} fallbackRoute="login">
             <RentEScooterPage />
           </ProtectedRoute>
         ),
@@ -66,7 +66,7 @@ const router = createBrowserRouter([
       {
         path: "rent-car",
         element: (
-          <ProtectedRoute role={Role.CUSTOMER}>
+          <ProtectedRoute role={Role.CUSTOMER} fallbackRoute="/login">
             <RentCarPage />
           </ProtectedRoute>
         ),
@@ -74,7 +74,7 @@ const router = createBrowserRouter([
       {
         path: "rent-bike/:id",
         element: (
-          <ProtectedRoute role={Role.CUSTOMER}>
+          <ProtectedRoute role={Role.CUSTOMER} fallbackRoute="/login">
             <BookingPage config={bikeConfig} />
           </ProtectedRoute>
         ),
@@ -82,7 +82,7 @@ const router = createBrowserRouter([
       {
         path: "rent-escooter/:id",
         element: (
-          <ProtectedRoute role={Role.CUSTOMER}>
+          <ProtectedRoute role={Role.CUSTOMER} fallbackRoute="/login">
             <BookingPage config={escooterConfig} />
           </ProtectedRoute>
         ),
@@ -90,7 +90,7 @@ const router = createBrowserRouter([
       {
         path: "rent-car/:id",
         element: (
-          <ProtectedRoute role={Role.CUSTOMER}>
+          <ProtectedRoute role={Role.CUSTOMER} fallbackRoute="/login">
             <BookingPage config={carConfig} />
           </ProtectedRoute>
         ),
@@ -98,7 +98,7 @@ const router = createBrowserRouter([
       {
         path: "my-rentals",
         element: (
-          <ProtectedRoute role={Role.CUSTOMER}>
+          <ProtectedRoute role={Role.CUSTOMER} fallbackRoute="/login">
             <MyRentalsPage />
           </ProtectedRoute>
         ),
@@ -106,7 +106,7 @@ const router = createBrowserRouter([
       {
         path: "parking",
         element: (
-          <ProtectedRoute role={Role.CUSTOMER}>
+          <ProtectedRoute role={Role.CUSTOMER} fallbackRoute="/login">
             <ParkingPage />
           </ProtectedRoute>
         ),
@@ -114,7 +114,7 @@ const router = createBrowserRouter([
       {
         path: "startTrip",
         element: (
-          <ProtectedRoute role={Role.CUSTOMER}>
+          <ProtectedRoute role={Role.CUSTOMER} fallbackRoute="/login">
             <StartTripPage />
           </ProtectedRoute>
         ),

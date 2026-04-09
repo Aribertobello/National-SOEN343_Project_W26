@@ -28,7 +28,7 @@ export default function Header() {
   };
 
   return (
-    <div className="flex justify-between w-full border-2 rounded-lg sticky top-0 z-10">
+    <div className="flex justify-between w-full rounded-lg sticky top-0 z-10 bg-black">
       <div className="flex justify-between gap-x-5">
         <div className="flex flex-row justify-between align-bottom">
           <Link to="/">
