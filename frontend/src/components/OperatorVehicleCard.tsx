@@ -2,6 +2,7 @@
 import { MapPin } from "lucide-react";
 import { RentalVehicleStatus, type RentalVehicle } from "@/models/vehicle";
 import { Button } from "./ui/button";
+import { buildGoogleMapsSearchUrl } from "@/utils/googleMaps";
 
 import bikeIcon from "@/assets/bicycle.svg";
 import carIcon from "@/assets/carshare.svg";
@@ -14,6 +15,7 @@ interface OperatorVehicleCardProps {
 }
 
 export default function OperatorVehicleCard({vehicle, clientName, onClickDetails}: OperatorVehicleCardProps) {
+  const mapsUrl = buildGoogleMapsSearchUrl(vehicle.location.address);
 
     const iconPath = (() => {
       switch (vehicle.type) {
@@ -65,7 +67,14 @@ export default function OperatorVehicleCard({vehicle, clientName, onClickDetails
         </div>
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <MapPin className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">{vehicle.location.address}</span>
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="truncate hover:underline"
+          >
+            {vehicle.location.address}
+          </a>
         </div>
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-2">          

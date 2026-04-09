@@ -7,6 +7,7 @@ import type { VehicleConfig } from '@/utils/factories/VehicleFactory';
 import { fetchVehiclesByType } from '@/services/vehicleService';
 import { createRental } from '@/services/rentalService';
 import { PricingContext, getPricingStrategy } from '@/services/pricing/PricingStrategy';
+import { buildGoogleMapsSearchUrl } from '@/utils/googleMaps';
 
 interface BookingPageProps {
   config: VehicleConfig;
@@ -106,6 +107,7 @@ export default function BookingPage({ config }: BookingPageProps) {
   }
 
   const minimumCost = pricing.getMinimumCost(vehicle.price_per_unit);
+  const mapsUrl = buildGoogleMapsSearchUrl(vehicle.location);
 
   return (
     <div className="max-w-lg mx-auto px-4 py-8 flex flex-col gap-6">
@@ -153,7 +155,19 @@ export default function BookingPage({ config }: BookingPageProps) {
             </div>
 
             <div className="divide-y text-sm">
-              <Row label="Location"    value={vehicle.location} />
+              <Row
+                label="Location"
+                value={(
+                  <a
+                    href={mapsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:underline"
+                  >
+                    {vehicle.location}
+                  </a>
+                )}
+              />
               <Row label="Rate"        value={`$${vehicle.price_per_unit.toFixed(2)} ${config.rateLabel}`} />
               <Row label="Min. charge" value={`$${minimumCost.toFixed(2)}`} />
             </div>
@@ -242,7 +256,16 @@ export default function BookingPage({ config }: BookingPageProps) {
           <div>
             <p className="font-bold text-xl">You're all set!</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Head to <span className="font-semibold text-foreground">{vehicle.location}</span> to pick up your {config.label.toLowerCase()}.
+              Head to{" "}
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-foreground hover:underline"
+              >
+                {vehicle.location}
+              </a>{" "}
+              to pick up your {config.label.toLowerCase()}.
             </p>
           </div>
 
@@ -275,7 +298,7 @@ export default function BookingPage({ config }: BookingPageProps) {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex justify-between gap-4 py-2.5 first:pt-0 last:pb-0">
       <span className="text-muted-foreground">{label}</span>

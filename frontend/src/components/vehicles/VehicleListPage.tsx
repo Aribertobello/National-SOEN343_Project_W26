@@ -1,4 +1,3 @@
-
 // Generic listing page — used by RentBikePage, RentCarPage, RentEScooterPage
 // Receives a VehicleConfig from the factory and fetches only that vehicle type
 
@@ -14,18 +13,20 @@ interface VehicleListPageProps {
 }
 
 const STATUS_FILTERS: { label: string; value: VehicleStatus | "all" }[] = [
-  { label: "All",         value: "all" },
-  { label: "Available",   value: "available" },
-  { label: "In Use",      value: "rented-out" },
+  { label: "All", value: "all" },
+  { label: "Available", value: "available" },
+  { label: "In Use", value: "rented-out" },
   { label: "Maintenance", value: "maintenance" },
 ];
 
 export default function VehicleListPage({ config }: VehicleListPageProps) {
-  const [vehicles, setVehicles]   = useState<Vehicle[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<VehicleStatus | "all">("all");
-  const [search, setSearch]       = useState("");
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<VehicleStatus | "all">(
+    "all",
+  );
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -45,7 +46,9 @@ export default function VehicleListPage({ config }: VehicleListPageProps) {
 
   const filtered = vehicles.filter((v) => {
     const matchesStatus = statusFilter === "all" || v.status === statusFilter;
-    const matchesSearch = v.location.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = v.location
+      .toLowerCase()
+      .includes(search.toLowerCase());
     return matchesStatus && matchesSearch;
   });
   return (
@@ -53,12 +56,17 @@ export default function VehicleListPage({ config }: VehicleListPageProps) {
       {/* Page header */}
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-2xl bg-muted p-3">
-          <img src={config.iconPath} alt={config.label} className="w-full h-full object-contain" />
+          <img
+            src={config.iconPath}
+            alt={config.label}
+            className="w-full h-full object-contain"
+          />
         </div>
         <div>
           <h1 className="text-2xl font-bold">Rent a {config.label}</h1>
           <p className="text-muted-foreground text-sm">
-            {vehicles.filter((v) => v.status === "available").length} available near you
+            {vehicles.filter((v) => v.status === "available").length} available
+            near you
           </p>
         </div>
       </div>
@@ -85,9 +93,10 @@ export default function VehicleListPage({ config }: VehicleListPageProps) {
               key={f.value}
               onClick={() => setStatusFilter(f.value)}
               className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-colors
-                ${statusFilter === f.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/70"
+                ${
+                  statusFilter === f.value
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted/70"
                 }`}
             >
               {f.label}
